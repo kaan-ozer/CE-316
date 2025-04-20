@@ -3,12 +3,23 @@
  */
 package ce316project;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+
+public class App extends Application{
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        launch();
+    }
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        Label label = new Label("Hello World\n");
+        Scene scene = new Scene(label,400,200);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("JavaFxApp");
+        primaryStage.show();
     }
 }
