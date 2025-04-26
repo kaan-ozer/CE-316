@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -17,6 +19,43 @@ public class ZipExtractor {
 
     public ZipExtractor(String zipsPath) {
         this.zipsDirectory = new File(zipsPath);
+    }
+
+    public void extractZipsConcurrently()
+    {
+        File[] zipFiles = zipsDirectory.listFiles((dir,name) -> name.endsWith(".zip"));
+
+        if(zipFiles == null || zipFiles.length == 0)
+        {
+            System.out.println("No zip files found in directory.");
+            return;
+        }
+
+        int threadCount = Runtime.getRuntime().availableProcessors();
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+
+        for (File zipFile : zipFiles) {
+            executor.submit(() -> {
+                String studentId = zipFile.getName().replaceFirst("\\.zip$", "");
+                Path outputDir = zipsDirectory.toPath().resolve(studentId);
+
+                try {
+                    Files.createDirectories(outputDir);
+                    extractZip(zipFile, outputDir);
+                    System.out.println("Extracted: " + zipFile.getName() + " on thread: " + Thread.currentThread().getName());
+                } catch (IOException e) {
+                    System.err.println("Failed to extract " + zipFile.getName() + ": " + e.getMessage());
+                }
+
+            });
+        }
+
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, java.util.concurrent.TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            System.err.println("Interrupted while waiting for tasks to complete.");
+        }
     }
 
     private void extractZip(File zipFile, Path outputDir) throws IOException
