@@ -1,5 +1,7 @@
 package ce316project.entities;
 
+import ce316project.utils.SubmissionThread;
+
 public class Student {
     private String studentId;
     private String directoryPath;
