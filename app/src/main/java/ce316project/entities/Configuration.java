@@ -4,7 +4,8 @@ import java.util.List;
 
 public class Configuration {
 
-    private String configId;
+
+    private String configName;
     private String language;
     private String compilerPath;
     private String compilerCommand;
@@ -13,9 +14,9 @@ public class Configuration {
     private List<String> runParameters;
     private String executableExtension;
 
-    public Configuration(String configId, String language, String compilerPath, String compilerCommand,
-                         List<String> compilerParameters, String runCommand, List<String> runParameters, String executableExtension) {
-        this.configId = configId;
+    public Configuration(String configName, String executableExtension, String language, String compilerCommand,
+                         List<String> compilerParameters, String runCommand, List<String> runParameters, String compilerPath) {
+        this.configName = configName;
         this.language = language;
         this.compilerPath = compilerPath;
         this.compilerCommand = compilerCommand;
@@ -29,7 +30,7 @@ public class Configuration {
         // Empty constructor for JSON serialization
     }
 
-    public String getConfigId() { return configId; }
+    public String getConfigName() { return configName; }
     public String getLanguage() { return language; }
     public String getCompilerPath() { return compilerPath; }
     public String getCompilerCommand() { return compilerCommand; }
@@ -38,7 +39,7 @@ public class Configuration {
     public List<String> getRunParameters() { return runParameters; }
     public String getExecutableExtension() { return executableExtension; }
 
-    public void setConfigId(String configId) { this.configId = configId; }
+    public void setConfigName(String configId) { this.configName = configId; }
     public void setLanguage(String language) { this.language = language; }
     public void setCompilerPath(String compilerPath) { this.compilerPath = compilerPath; }
     public void setCompilerCommand(String compilerCommand) { this.compilerCommand = compilerCommand; }

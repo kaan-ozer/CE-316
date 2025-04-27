@@ -14,7 +14,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        MainPage mainPage = new MainPage();
+        MainPage mainPage = new MainPage(primaryStage);
         Scene scene = new Scene(mainPage, 800, 450);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Integrated Assignment Environment");
