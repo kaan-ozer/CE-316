@@ -1,7 +1,5 @@
 package ce316project.views;
 
-import java.util.HashMap;
-
 import ce316project.controller.PageController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,20 +8,23 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.stage.Stage;
+
+import java.util.HashMap;
 
 public class MainPage extends VBox {
 
-    private AppMenuBar menuBar = new AppMenuBar();
-
+    private AppMenuBar menuBar;
     private ComboBox<String> projectSelector = new ComboBox<>();
     private Button refreshButton = createIconButton("Refresh", "icons/refresh.png");
     private Button runButton = createIconButton("RUN", "icons/run.png");
     private Button showResultsButton = createIconButton("Show Results", "icons/results.png");
     private Button zipConvertButton = createIconButton("Convert to ZIP file", "icons/zip.png");
-
     private TableView<String> resultTable = new TableView<>();
 
-    public MainPage() {
+    public MainPage(Stage primaryStage) {
+        menuBar = new AppMenuBar(primaryStage);
+
         // Title area
         VBox header = new VBox(5);
         Label title = new Label("Integrated Assignment Environment");
@@ -72,7 +73,6 @@ public class MainPage extends VBox {
         this.getChildren().addAll(menuBar, header, mainLayout);
         this.setStyle("-fx-background-color: #0F0F10;");
 
-
         if (!PageController.pagesArray.isEmpty()) {
             PageController.pagesArray.add(PageController.pagesArray.size(), PageController.pagesArray.get(PageController.pagesArray.size() - 1));
         }
@@ -92,28 +92,4 @@ public class MainPage extends VBox {
         return button;
     }
 
-    public void fillCheckLists(HashMap<String, Integer> hashmap, TitledPane checkBoxList, String type) {
-        VBox checkBoxVBox = new VBox();
-        ScrollPane checkBoxScrollPane = new ScrollPane(checkBoxVBox);
-        checkBoxScrollPane.setMaxHeight(800);
-        checkBoxScrollPane.setMaxWidth(120);
-
-        if (hashmap.isEmpty()) {
-            checkBoxList.setExpanded(false);
-        }
-
-        for (String key : hashmap.keySet()) {
-            HBox checkBoxItemBox = new HBox();
-            CheckBox checkBox = new CheckBox(key);
-            Label countLabel = new Label(hashmap.get(key).toString().trim());
-            checkBoxItemBox.getChildren().addAll(checkBox, countLabel);
-            checkBoxItemBox.setSpacing(5);
-            checkBoxItemBox.setPadding(new Insets(0, 0, 5, 5));
-            checkBox.setStyle("-fx-text-fill: #F0F0F0;");
-            countLabel.setStyle("-fx-text-fill: #F0F0F0;");
-            checkBoxVBox.getChildren().add(checkBoxItemBox);
-        }
-
-        checkBoxList.setContent(checkBoxScrollPane);
-    }
 }

@@ -23,6 +23,12 @@ dependencies {
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:32.1.1-jre'
     implementation "org.openjfx:javafx-controls:21"
+
+    // JSON Library
+    implementation 'org.json:json:20240303'
+
+    // Genson for JSON files
+    implementation 'com.owlike:genson:1.6'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

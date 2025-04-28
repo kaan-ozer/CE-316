@@ -1,16 +1,9 @@
 package ce316project.views;
 
-import java.awt.Desktop;
-import java.io.File;
-import java.io.IOException;
-
-import javax.swing.JOptionPane;
-
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
+import javafx.stage.Stage;
 
 public class AppMenuBar extends MenuBar {
 
@@ -18,60 +11,55 @@ public class AppMenuBar extends MenuBar {
     private Menu configMenu = new Menu("Configuration");
     private Menu helpMenu = new Menu("Help");
 
-    private MenuItem mNewProject = new MenuItem("New Project");  // Ctrl+N
-
+    private MenuItem mNewProject = new MenuItem("New Project");
     private MenuItem mQuit = new MenuItem("Quit");
 
     private MenuItem mNewConfig = new MenuItem("New Configuration");
+    private MenuItem mOpenConfig = new MenuItem("Open Configuration");
     private MenuItem mImportConfig = new MenuItem("Import Config");
     private MenuItem mExportConfig = new MenuItem("Export Config");
 
-    private MenuItem mUserGuide = new MenuItem("User Guide");   // Ctrl+H
+    private MenuItem mUserGuide = new MenuItem("User Guide");
     private MenuItem mAbout = new MenuItem("About");
 
-    public AppMenuBar() {
+    private Stage primaryStage;
+
+    public AppMenuBar(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+
 
         mNewProject.setAccelerator(KeyCombination.keyCombination("Ctrl+N"));
         mUserGuide.setAccelerator(KeyCombination.keyCombination("Ctrl+H"));
 
-        mQuit.setOnAction(e -> quit());
-        mUserGuide.setOnAction(e -> showUserGuide());
-        mAbout.setOnAction(e -> showAboutInfo());
+
+        mNewConfig.setOnAction(e -> openCreateConfigurationPage(primaryStage));
+        mOpenConfig.setOnAction(e -> openEditConfigurationPage(primaryStage));
+
 
         projectMenu.getItems().addAll(mNewProject, new SeparatorMenuItem(), mQuit);
-
-        mNewConfig.setOnAction(e -> System.out.println("Open Configuration Manager"));
-        mImportConfig.setOnAction(e -> System.out.println("Import Config"));
-        mExportConfig.setOnAction(e -> System.out.println("Export Config"));
-
-        configMenu.getItems().addAll(mNewConfig, mImportConfig, mExportConfig);
-
+        configMenu.getItems().addAll(mNewConfig, mOpenConfig, new SeparatorMenuItem(), mImportConfig, mExportConfig);
         helpMenu.getItems().addAll(mUserGuide, new SeparatorMenuItem(), mAbout);
-
 
         this.getMenus().addAll(projectMenu, configMenu, helpMenu);
     }
 
+    private void openCreateConfigurationPage(Stage primaryStage) {
+        CreateConfigurationPage createPage = new CreateConfigurationPage(primaryStage);
 
-    private void showUserGuide() {
-        try {
-            File userGuide = new File("shared/userGuide.pdf");
-            if (userGuide.exists()) {
-                Desktop.getDesktop().open(userGuide);
-            } else {
-                System.out.println("User guide not found!");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Create New Configuration");
+        popupStage.initOwner(primaryStage);
+        popupStage.setScene(new Scene(createPage, 500, 700));
+        popupStage.show();
     }
 
-    private void showAboutInfo() {
-        JOptionPane.showMessageDialog(null, "YourApp v1.0\nDeveloped by My G.", "About YourApp",
-                JOptionPane.INFORMATION_MESSAGE);
-    }
+    private void openEditConfigurationPage(Stage primaryStage) {
+        EditConfigurationPage openPage = new EditConfigurationPage(primaryStage);
 
-    private void quit() {
-        System.exit(0);
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Open Existing Configuration");
+        popupStage.initOwner(primaryStage);
+       popupStage.setScene(new Scene(openPage, 600, 700));
+        popupStage.show();
     }
 }
