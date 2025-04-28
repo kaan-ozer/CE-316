@@ -104,6 +104,13 @@ public class EditConfigurationPage extends VBox {
         saveButton.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px;");
         saveButton.setOnAction(e -> saveConfiguration());
 
+        Button deleteButton = new Button("Delete Selected Configuration");
+        deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 14px;");
+        deleteButton.setOnAction(e -> deleteSelectedConfiguration());
+
+        HBox buttonsBox = new HBox(20, saveButton, deleteButton);
+        buttonsBox.setAlignment(Pos.CENTER);
+
         this.getChildren().addAll(
                 configSelector,
                 new Label("Configuration Name:"), configNameField,
@@ -115,7 +122,7 @@ public class EditConfigurationPage extends VBox {
                 new Label("Run Parameters (space separated):"), runParametersField,
                 compilerInstalledCheckBox,
                 compilerPathBox,
-                saveButton
+                buttonsBox
         );
     }
 
@@ -239,4 +246,58 @@ public class EditConfigurationPage extends VBox {
         success.setHeaderText("Configuration updated successfully!");
         success.showAndWait();
     }
+
+    private void deleteSelectedConfiguration() {
+        String selectedConfig = configSelector.getValue();
+
+        if (selectedConfig == null || selectedConfig.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("No configuration selected!");
+            alert.setContentText("Please select a configuration to delete.");
+            alert.showAndWait();
+            return;
+        }
+
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Delete Confirmation");
+        confirmation.setHeaderText("Are you sure you want to delete '" + selectedConfig + "'?");
+        confirmation.setContentText("This action cannot be undone.");
+
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                Path outputDir = Paths.get(System.getProperty("user.home"), "Desktop", "CE316", "Project", "CE-316", "app", "src", "main", "java", "ce316project", "output");
+                File configFile = outputDir.resolve(selectedConfig + ".json").toFile();
+
+                if (configFile.exists()) {
+                    if (configFile.delete()) {
+                        configSelector.getItems().remove(selectedConfig);
+                        clearFields();
+
+                        Alert success = new Alert(Alert.AlertType.INFORMATION);
+                        success.setHeaderText("Configuration deleted successfully!");
+                        success.showAndWait();
+                    } else {
+                        Alert error = new Alert(Alert.AlertType.ERROR);
+                        error.setHeaderText("Failed to delete the configuration file.");
+                        error.showAndWait();
+                    }
+                }
+            }
+        });
+    }
+
+    private void clearFields() {
+        configNameField.clear();
+        progLangField.clear();
+        executableExtensionField.clear();
+        compilerCommandField.clear();
+        compilerParametersField.clear();
+        runCommandField.clear();
+        runParametersField.clear();
+        compilerInstalledCheckBox.setSelected(true);
+        compilerPathField.clear();
+        compilerPathField.setVisible(false);
+        selectCompilerButton.setVisible(false);
+    }
+
 }

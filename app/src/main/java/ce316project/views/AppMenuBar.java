@@ -57,9 +57,9 @@ public class AppMenuBar extends MenuBar {
         EditConfigurationPage openPage = new EditConfigurationPage(primaryStage);
 
         Stage popupStage = new Stage();
-        popupStage.setTitle("Open Existing Configuration");
+        popupStage.setTitle("Edit Existing Configuration");
         popupStage.initOwner(primaryStage);
-       popupStage.setScene(new Scene(openPage, 600, 700));
+        popupStage.setScene(new Scene(openPage, 600, 700));
         popupStage.show();
     }
 }
