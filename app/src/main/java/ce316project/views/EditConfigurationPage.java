@@ -335,118 +335,125 @@ public class EditConfigurationPage extends VBox {
             outputDir.toFile().mkdirs();
         }
 
-        File destFile = outputDir.resolve(selectedFile.getName()).toFile();
+        try (FileReader reader = new FileReader(selectedFile)) {
+            Genson genson = new Genson();
+            Configuration config = genson.deserialize(reader, Configuration.class);
 
-        try {
+            String configName = config.getConfigName();
+
+            if (configSelector.getItems().contains(configName)) {
+                Alert duplicateAlert = new Alert(Alert.AlertType.ERROR);
+                duplicateAlert.setTitle("Import Error");
+                duplicateAlert.setHeaderText("Duplicate Configuration Name Detected");
+                duplicateAlert.setContentText("A configuration with the name '" + configName + "' already exists.\nDuplicate configuration name is not allowed.");
+                duplicateAlert.showAndWait();
+                return;
+            }
+
+            File destFile = outputDir.resolve(configName + ".json").toFile();
             java.nio.file.Files.copy(selectedFile.toPath(), destFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
-            try (FileReader reader = new FileReader(destFile)) {
-                Genson genson = new Genson();
-                Configuration config = genson.deserialize(reader, Configuration.class);
+            StringBuilder failedFields = new StringBuilder();
 
-                StringBuilder failedFields = new StringBuilder();
+            try {
+                configNameField.setText(config.getConfigName());
+            } catch (Exception e) {
+                configNameField.clear();
+                failedFields.append("Configuration Name\n");
+            }
 
-                try {
-                    configNameField.setText(config.getConfigName());
-                } catch (Exception e) {
-                    configNameField.clear();
-                    failedFields.append("Configuration Name\n");
-                }
+            try {
+                progLangField.setText(config.getLanguage());
+            } catch (Exception e) {
+                progLangField.clear();
+                failedFields.append("Programming Language\n");
+            }
 
-                try {
-                    progLangField.setText(config.getLanguage());
-                } catch (Exception e) {
-                    progLangField.clear();
-                    failedFields.append("Programming Language\n");
-                }
+            try {
+                executableExtensionField.setText(config.getExecutableExtension());
+            } catch (Exception e) {
+                executableExtensionField.clear();
+                failedFields.append("Executable Extension\n");
+            }
 
-                try {
-                    executableExtensionField.setText(config.getExecutableExtension());
-                } catch (Exception e) {
-                    executableExtensionField.clear();
-                    failedFields.append("Executable Extension\n");
-                }
+            try {
+                compilerCommandField.setText(config.getCompilerCommand());
+            } catch (Exception e) {
+                compilerCommandField.clear();
+                failedFields.append("Compiler Command\n");
+            }
 
-                try {
-                    compilerCommandField.setText(config.getCompilerCommand());
-                } catch (Exception e) {
-                    compilerCommandField.clear();
-                    failedFields.append("Compiler Command\n");
-                }
+            try {
+                compilerParametersField.setText(String.join(" ", config.getCompilerParameters()));
+            } catch (Exception e) {
+                compilerParametersField.clear();
+                failedFields.append("Compiler Parameters\n");
+            }
 
-                try {
-                    compilerParametersField.setText(String.join(" ", config.getCompilerParameters()));
-                } catch (Exception e) {
-                    compilerParametersField.clear();
-                    failedFields.append("Compiler Parameters\n");
-                }
+            try {
+                runCommandField.setText(config.getRunCommand());
+            } catch (Exception e) {
+                runCommandField.clear();
+                failedFields.append("Run Command\n");
+            }
 
-                try {
-                    runCommandField.setText(config.getRunCommand());
-                } catch (Exception e) {
-                    runCommandField.clear();
-                    failedFields.append("Run Command\n");
-                }
+            try {
+                runParametersField.setText(String.join(" ", config.getRunParameters()));
+            } catch (Exception e) {
+                runParametersField.clear();
+                failedFields.append("Run Parameters\n");
+            }
 
-                try {
-                    runParametersField.setText(String.join(" ", config.getRunParameters()));
-                } catch (Exception e) {
-                    runParametersField.clear();
-                    failedFields.append("Run Parameters\n");
-                }
-
-                try {
-                    if (config.getCompilerPath() == null || config.getCompilerPath().isEmpty()) {
-                        compilerInstalledCheckBox.setSelected(true);
-                        compilerPathField.clear();
-                        compilerPathField.setVisible(false);
-                        selectCompilerButton.setVisible(false);
-                    } else {
-                        compilerInstalledCheckBox.setSelected(false);
-                        compilerPathField.setText(config.getCompilerPath());
-                        compilerPathField.setVisible(true);
-                        selectCompilerButton.setVisible(true);
-                    }
-                } catch (Exception e) {
+            try {
+                if (config.getCompilerPath() == null || config.getCompilerPath().isEmpty()) {
                     compilerInstalledCheckBox.setSelected(true);
                     compilerPathField.clear();
                     compilerPathField.setVisible(false);
                     selectCompilerButton.setVisible(false);
-                    failedFields.append("Compiler Path\n");
-                }
-
-                String configNameWithoutExtension = selectedFile.getName().replace(".json", "");
-                if (!configSelector.getItems().contains(configNameWithoutExtension)) {
-                    configSelector.getItems().add(configNameWithoutExtension);
-                }
-                configSelector.setValue(configNameWithoutExtension);
-
-                if (failedFields.length() > 0) {
-                    Alert warning = new Alert(Alert.AlertType.WARNING);
-                    warning.setTitle("Import Completed with Warnings");
-                    warning.setHeaderText("Some fields could not be parsed:");
-                    warning.setContentText(failedFields.toString());
-                    warning.showAndWait();
                 } else {
-                    Alert success = new Alert(Alert.AlertType.INFORMATION);
-                    success.setHeaderText("Configuration imported successfully!");
-                    success.showAndWait();
+                    compilerInstalledCheckBox.setSelected(false);
+                    compilerPathField.setText(config.getCompilerPath());
+                    compilerPathField.setVisible(true);
+                    selectCompilerButton.setVisible(true);
                 }
-
-            } catch (Exception parseException) {
-                Alert error = new Alert(Alert.AlertType.ERROR);
-                error.setHeaderText("Error while parsing the configuration file.");
-                error.setContentText("Error: " + parseException.getMessage());
-                error.showAndWait();
-                destFile.delete();
+            } catch (Exception e) {
+                compilerInstalledCheckBox.setSelected(true);
+                compilerPathField.clear();
+                compilerPathField.setVisible(false);
+                selectCompilerButton.setVisible(false);
+                failedFields.append("Compiler Path\n");
             }
+
+
+            configSelector.getItems().add(configName);
+            configSelector.setValue(configName);
+
+
+            if (failedFields.length() > 0) {
+                Alert warning = new Alert(Alert.AlertType.WARNING);
+                warning.setTitle("Import Completed with Warnings");
+                warning.setHeaderText("Some fields could not be parsed:");
+                warning.setContentText(failedFields.toString());
+                warning.showAndWait();
+            } else {
+                Alert success = new Alert(Alert.AlertType.INFORMATION);
+                success.setHeaderText("Configuration imported successfully!");
+                success.showAndWait();
+            }
+
         } catch (IOException e) {
             Alert error = new Alert(Alert.AlertType.ERROR);
             error.setHeaderText("Failed to import configuration.");
             error.setContentText(e.getMessage());
             error.showAndWait();
+        } catch (Exception parseException) {
+            Alert error = new Alert(Alert.AlertType.ERROR);
+            error.setHeaderText("Error while parsing the configuration file.");
+            error.setContentText(parseException.getMessage());
+            error.showAndWait();
         }
     }
+
 
 
     private void clearFields() {
