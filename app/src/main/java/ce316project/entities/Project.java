@@ -10,18 +10,15 @@ import ce316project.utils.ZipExtractor;
 
 public class Project {
 
-    
-    private String projectId;
     private String projectName;
     private Configuration config;
-    private List<Student> students;
-    private Report report;
-    private String referencePath;
+    private List<Student> students; //TODO: this will be handled later.
+    private Report report; //  it is probably ''result outputs'' //TODO: this will be handled later.
+    private String referencePath; //  it is probably the reference of the ''expected outputs''
     private Date creationDate;
     
     public Project(String projectId, String projectName, Configuration config, List<Student> students, Report report,
             String referencePath) {
-        this.projectId = projectId;
         this.projectName = projectName;
         this.config = config;
         this.students = students;
@@ -58,14 +55,7 @@ public class Project {
 
     }
 
-    public String getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(String projectId) {
-        this.projectId = projectId;
-    }
-
+    
     public String getProjectName() {
         return projectName;
     }

@@ -32,7 +32,7 @@ public class AppMenuBar extends MenuBar {
 
         mNewConfig.setOnAction(e -> openCreateConfigurationPage(primaryStage));
         mOpenConfig.setOnAction(e -> openEditConfigurationPage(primaryStage));
-
+        mNewProject.setOnAction(e -> openCreateProjectPage(primaryStage));
 
         projectMenu.getItems().addAll(mNewProject, new SeparatorMenuItem(), mQuit);
         configMenu.getItems().addAll(mNewConfig, mOpenConfig, new SeparatorMenuItem());
@@ -42,7 +42,7 @@ public class AppMenuBar extends MenuBar {
     }
 
     private void openCreateConfigurationPage(Stage primaryStage) {
-        CreateConfigurationPage createPage = new CreateConfigurationPage(primaryStage);
+        CreateConfigurationPage createPage = new CreateConfigurationPage(primaryStage, null);
 
         Stage popupStage = new Stage();
         popupStage.setTitle("Create New Configuration");
@@ -58,6 +58,16 @@ public class AppMenuBar extends MenuBar {
         popupStage.setTitle("Edit Existing Configuration");
         popupStage.initOwner(primaryStage);
         popupStage.setScene(new Scene(openPage, 600, 700));
+        popupStage.show();
+    }
+
+    private void openCreateProjectPage(Stage primaryStage) {
+        CreateProjectPage createProjectPage = new CreateProjectPage(primaryStage);
+
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Create New Configuration");
+        popupStage.initOwner(primaryStage);
+        popupStage.setScene(new Scene(createProjectPage, 500, 500));
         popupStage.show();
     }
 }
