@@ -156,7 +156,7 @@ public class CreateConfigurationPage extends VBox {
             }
         }
 
-        Path outputDir = Paths.get(System.getProperty("user.home"), "Desktop", "CE316", "Project", "CE-316", "app", "src", "main", "java", "ce316project", "output");
+        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
 
         if (!outputDir.toFile().exists()) {
             outputDir.toFile().mkdirs();
