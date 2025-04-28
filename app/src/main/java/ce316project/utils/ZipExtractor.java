@@ -36,8 +36,8 @@ public class ZipExtractor {
 
         for (File zipFile : zipFiles) {
             executor.submit(() -> {
-                String studentId = zipFile.getName().replaceFirst("\\.zip$", "");
-                Path outputDir = zipsDirectory.toPath().resolve(studentId);
+                Path outputDir = zipsDirectory.toPath()
+                                .resolve("Submissions");
 
                 try {
                     Files.createDirectories(outputDir);
@@ -70,7 +70,6 @@ public class ZipExtractor {
                 if(!entryPath.startsWith(outputDir)) {
                     throw new IOException("Entry is outside of the target directory: " + entry.getName());
                 }
-
                 if(entry.isDirectory()) {
                     Files.createDirectories(entryPath);
                 } else {

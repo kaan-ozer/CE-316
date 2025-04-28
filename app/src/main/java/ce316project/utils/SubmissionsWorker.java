@@ -24,9 +24,19 @@ public class SubmissionsWorker {
 
 
 
-
         return new CompilationResult(success, null, null, null);
     }
+
+    /* 
+    private ExecutionResult executeSubmission(Student student)
+    {
+        int exitCode;
+        String stdOut, stdError;
+
+
+        return new ExecutionResult(exitCode, stdOut, stdError, null);
+    }
+    */
     
     /* 
     public CompilationResult compile()
