@@ -3,6 +3,8 @@ package ce316project.entities;
 import java.util.Date;
 import java.util.List;
 
+import ce316project.utils.ZipExtractor;
+
 public class Project {
 
     
@@ -78,6 +80,15 @@ public class Project {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public void prepareSubmissions(String submissionsDirectory)
+    {
+        ZipExtractor zipExtractor = new ZipExtractor(submissionsDirectory);
+        zipExtractor.extractZipsConcurrently();
+        
+
+
     }
 
     public void runSubmissions(String submissionsDirectory)

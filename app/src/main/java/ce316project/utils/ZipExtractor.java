@@ -9,6 +9,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -16,19 +17,20 @@ public class ZipExtractor {
     
     private File zipsDirectory;
     private Path outputDir;
+    private AtomicInteger submissionCount = new AtomicInteger(0);
 
     public ZipExtractor(String zipsPath) {
         this.zipsDirectory = new File(zipsPath);
     }
 
-    public void extractZipsConcurrently()
+    public int extractZipsConcurrently()
     {
         File[] zipFiles = zipsDirectory.listFiles((dir,name) -> name.endsWith(".zip"));
 
         if(zipFiles == null || zipFiles.length == 0)
         {
             System.out.println("No zip files found in directory.");
-            return;
+            return 0;
         }
 
         int threadCount = Runtime.getRuntime().availableProcessors();
@@ -42,11 +44,11 @@ public class ZipExtractor {
                 try {
                     Files.createDirectories(outputDir);
                     extractZip(zipFile, outputDir);
+                    submissionCount.incrementAndGet();
                     System.out.println("Extracted: " + zipFile.getName() + " on thread: " + Thread.currentThread().getName());
                 } catch (IOException e) {
                     System.err.println("Failed to extract " + zipFile.getName() + ": " + e.getMessage());
                 }
-
             });
         }
 
@@ -56,6 +58,7 @@ public class ZipExtractor {
         } catch (InterruptedException e) {
             System.err.println("Interrupted while waiting for tasks to complete.");
         }
+        return submissionCount.get();
     }
 
     private void extractZip(File zipFile, Path outputDir) throws IOException
@@ -80,6 +83,10 @@ public class ZipExtractor {
                 }
             }
        }
-    
     }
+
+    public File getZipsDirectory() {
+        return zipsDirectory;
+    }
+
 }

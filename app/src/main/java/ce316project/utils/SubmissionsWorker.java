@@ -17,6 +17,11 @@ public class SubmissionsWorker {
         this.config = config;
     }
 
+    public void compileSubmissions()
+    {
+        
+    }
+
     private CompilationResult compileSubmission(Student student)
     {
         boolean success = false;
