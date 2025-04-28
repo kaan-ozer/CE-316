@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import ce316project.utils.SubmissionsWorker;
 import ce316project.utils.ZipExtractor;
 
 public class Project {
@@ -35,33 +36,25 @@ public class Project {
 
         for(Map.Entry<String,Path> entry : studentEntries.entrySet())
         {
-            System.out.println("id"+entry.getKey());
-            System.out.println("path"+entry.getValue());
             Student student = new Student(
                 entry.getKey(), 
                 entry.getValue().toString()
             );
             students.add(student);
         }
+    }
 
-        
-
-
+    public void compileSubmissions()
+    {
+        SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, config);
+        submissionsWorker.compileSubmissions();
 
     }
 
     public void runSubmissions(String submissionsDirectory)
     {
-        // Prepare Submissions
-        
-
-
-        // Compiler Submissions
-
-
 
         // Run Submissions
-
 
     }
 
