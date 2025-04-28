@@ -156,10 +156,10 @@ public class CreateConfigurationPage extends VBox {
             }
         }
 
-        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
 
-        if (!outputDir.toFile().exists()) {
-            outputDir.toFile().mkdirs();
+        if (!configsDir.toFile().exists()) {
+            configsDir.toFile().mkdirs();
         }
 
         Configuration config = new Configuration(
@@ -176,7 +176,7 @@ public class CreateConfigurationPage extends VBox {
         Genson genson = new Genson();
         String json = genson.serialize(config);
 
-        File outputFile = outputDir.resolve(configName + ".json").toFile();
+        File outputFile = configsDir.resolve(configName + ".json").toFile();
         try (FileWriter writer = new FileWriter(outputFile)) {
             writer.write(json);
         }

@@ -132,8 +132,8 @@ public class EditConfigurationPage extends VBox {
     }
 
     private void loadConfigurationFiles() {
-        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
-        File folder = outputDir.toFile();
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        File folder = configsDir.toFile();
 
         if (!folder.exists()) {
             folder.mkdirs();
@@ -148,8 +148,8 @@ public class EditConfigurationPage extends VBox {
     }
 
     private void loadConfiguration(String configName) {
-        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
-        File configFile = outputDir.resolve(configName + ".json").toFile();
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        File configFile = configsDir.resolve(configName + ".json").toFile();
 
         try (FileReader reader = new FileReader(configFile)) {
             Genson genson = new Genson();
@@ -228,14 +228,14 @@ public class EditConfigurationPage extends VBox {
             }
         }
 
-        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
 
-        if (!outputDir.toFile().exists()) {
-            outputDir.toFile().mkdirs();
+        if (!configsDir.toFile().exists()) {
+            configsDir.toFile().mkdirs();
         }
 
-        File oldFile = outputDir.resolve(selectedConfig + ".json").toFile();
-        File newFile = outputDir.resolve(configName + ".json").toFile();
+        File oldFile = configsDir.resolve(selectedConfig + ".json").toFile();
+        File newFile = configsDir.resolve(configName + ".json").toFile();
 
         boolean isRenamed = !selectedConfig.equals(configName);
 
@@ -297,8 +297,8 @@ public class EditConfigurationPage extends VBox {
 
         confirmation.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
-                File configFile = outputDir.resolve(selectedConfig + ".json").toFile();
+                Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+                File configFile = configsDir.resolve(selectedConfig + ".json").toFile();
 
                 if (configFile.exists()) {
                     if (configFile.delete()) {
@@ -329,10 +329,10 @@ public class EditConfigurationPage extends VBox {
             return;
         }
 
-        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
 
-        if (!outputDir.toFile().exists()) {
-            outputDir.toFile().mkdirs();
+        if (!configsDir.toFile().exists()) {
+            configsDir.toFile().mkdirs();
         }
 
         try (FileReader reader = new FileReader(selectedFile)) {
@@ -350,7 +350,7 @@ public class EditConfigurationPage extends VBox {
                 return;
             }
 
-            File destFile = outputDir.resolve(configName + ".json").toFile();
+            File destFile = configsDir.resolve(configName + ".json").toFile();
             java.nio.file.Files.copy(selectedFile.toPath(), destFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
             StringBuilder failedFields = new StringBuilder();
