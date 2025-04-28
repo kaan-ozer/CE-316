@@ -1,7 +1,9 @@
 package ce316project.entities;
 
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ce316project.utils.ZipExtractor;
 
@@ -24,6 +26,43 @@ public class Project {
         this.students = students;
         this.report = report;
         this.referencePath = referencePath;
+    }
+
+    public void prepareSubmissions(String submissionsDirectory)
+    {
+        ZipExtractor zipExtractor = new ZipExtractor(submissionsDirectory);
+        Map<String,Path> studentEntries = zipExtractor.extractZipsConcurrently();
+
+        for(Map.Entry<String,Path> entry : studentEntries.entrySet())
+        {
+            System.out.println("id"+entry.getKey());
+            System.out.println("path"+entry.getValue());
+            Student student = new Student(
+                entry.getKey(), 
+                entry.getValue().toString()
+            );
+            students.add(student);
+        }
+
+        
+
+
+
+    }
+
+    public void runSubmissions(String submissionsDirectory)
+    {
+        // Prepare Submissions
+        
+
+
+        // Compiler Submissions
+
+
+
+        // Run Submissions
+
+
     }
 
     public String getProjectId() {
@@ -80,30 +119,6 @@ public class Project {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
-    }
-
-    public void prepareSubmissions(String submissionsDirectory)
-    {
-        ZipExtractor zipExtractor = new ZipExtractor(submissionsDirectory);
-        zipExtractor.extractZipsConcurrently();
-        
-
-
-    }
-
-    public void runSubmissions(String submissionsDirectory)
-    {
-        // Prepare Submissions
-        
-
-
-        // Compiler Submissions
-
-
-
-        // Run Submissions
-
-
     }
 
 }

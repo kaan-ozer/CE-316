@@ -20,16 +20,8 @@ public class Student {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
-        this.studentId = studentId;
-    }
-
     public String getDirectoryPath() {
         return directoryPath;
-    }
-
-    public void setDirectoryPath(String directoryPath) {
-        this.directoryPath = directoryPath;
     }
 
     public ExecutionResult getExecutionResult() {
