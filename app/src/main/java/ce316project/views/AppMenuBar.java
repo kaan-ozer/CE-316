@@ -16,8 +16,6 @@ public class AppMenuBar extends MenuBar {
 
     private MenuItem mNewConfig = new MenuItem("New Configuration");
     private MenuItem mOpenConfig = new MenuItem("Open Configuration");
-    private MenuItem mImportConfig = new MenuItem("Import Config");
-    private MenuItem mExportConfig = new MenuItem("Export Config");
 
     private MenuItem mUserGuide = new MenuItem("User Guide");
     private MenuItem mAbout = new MenuItem("About");
@@ -37,7 +35,7 @@ public class AppMenuBar extends MenuBar {
 
 
         projectMenu.getItems().addAll(mNewProject, new SeparatorMenuItem(), mQuit);
-        configMenu.getItems().addAll(mNewConfig, mOpenConfig, new SeparatorMenuItem(), mImportConfig, mExportConfig);
+        configMenu.getItems().addAll(mNewConfig, mOpenConfig, new SeparatorMenuItem());
         helpMenu.getItems().addAll(mUserGuide, new SeparatorMenuItem(), mAbout);
 
         this.getMenus().addAll(projectMenu, configMenu, helpMenu);
@@ -57,9 +55,9 @@ public class AppMenuBar extends MenuBar {
         EditConfigurationPage openPage = new EditConfigurationPage(primaryStage);
 
         Stage popupStage = new Stage();
-        popupStage.setTitle("Open Existing Configuration");
+        popupStage.setTitle("Edit Existing Configuration");
         popupStage.initOwner(primaryStage);
-       popupStage.setScene(new Scene(openPage, 600, 700));
+        popupStage.setScene(new Scene(openPage, 600, 700));
         popupStage.show();
     }
 }

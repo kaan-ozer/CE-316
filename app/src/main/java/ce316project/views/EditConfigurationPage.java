@@ -104,6 +104,18 @@ public class EditConfigurationPage extends VBox {
         saveButton.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-size: 14px;");
         saveButton.setOnAction(e -> saveConfiguration());
 
+        Button deleteButton = new Button("Delete Selected Configuration");
+        deleteButton.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-font-size: 14px;");
+        deleteButton.setOnAction(e -> deleteSelectedConfiguration());
+
+        Button importButton = new Button("Import Configuration");
+        importButton.setStyle("-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 14px;");
+        importButton.setOnAction(e -> importConfiguration());
+
+        HBox buttonsBox = new HBox(20, saveButton, deleteButton, importButton);
+        buttonsBox.setAlignment(Pos.CENTER);
+
+
         this.getChildren().addAll(
                 configSelector,
                 new Label("Configuration Name:"), configNameField,
@@ -115,12 +127,12 @@ public class EditConfigurationPage extends VBox {
                 new Label("Run Parameters (space separated):"), runParametersField,
                 compilerInstalledCheckBox,
                 compilerPathBox,
-                saveButton
+                buttonsBox
         );
     }
 
     private void loadConfigurationFiles() {
-        Path outputDir = Paths.get(System.getProperty("user.home"), "Desktop", "CE316", "Project", "CE-316", "app", "src", "main", "java", "ce316project", "output");
+        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
         File folder = outputDir.toFile();
 
         if (!folder.exists()) {
@@ -136,7 +148,7 @@ public class EditConfigurationPage extends VBox {
     }
 
     private void loadConfiguration(String configName) {
-        Path outputDir = Paths.get(System.getProperty("user.home"), "Desktop", "CE316", "Project", "CE-316", "app", "src", "main", "java", "ce316project", "output");
+        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
         File configFile = outputDir.resolve(configName + ".json").toFile();
 
         try (FileReader reader = new FileReader(configFile)) {
@@ -179,18 +191,26 @@ public class EditConfigurationPage extends VBox {
     }
 
     private void saveConfiguration() {
-        String configName = configNameField.getText();
-        String language = progLangField.getText();
-        String compilerCommand = compilerCommandField.getText();
-        String compilerParameters = compilerParametersField.getText();
-        String runCommand = runCommandField.getText();
-        String runParameters = runParametersField.getText();
-        String executableExtension = executableExtensionField.getText();
-
-        if (configName.isEmpty() || language.isEmpty() || compilerCommand.isEmpty() || compilerParameters.isEmpty()
-                || runCommand.isEmpty() || runParameters.isEmpty() || executableExtension.isEmpty()) {
+        String selectedConfig = configSelector.getValue();
+        if (selectedConfig == null || selectedConfig.isEmpty()) {
             Alert error = new Alert(Alert.AlertType.ERROR);
-            error.setHeaderText("Please fill all fields!");
+            error.setHeaderText("No configuration selected!");
+            error.setContentText("Please select a configuration to edit.");
+            error.showAndWait();
+            return;
+        }
+
+        String configName = configNameField.getText().trim();
+        String language = progLangField.getText().trim();
+        String compilerCommand = compilerCommandField.getText().trim();
+        String compilerParameters = compilerParametersField.getText().trim();
+        String runCommand = runCommandField.getText().trim();
+        String runParameters = runParametersField.getText().trim();
+        String executableExtension = executableExtensionField.getText().trim();
+
+        if (configName.isEmpty() || language.isEmpty() || runCommand.isEmpty()) {
+            Alert error = new Alert(Alert.AlertType.ERROR);
+            error.setHeaderText("Please fill required fields (Configuration Name, Programming Language, Run Command)!");
             error.showAndWait();
             return;
         }
@@ -199,7 +219,7 @@ public class EditConfigurationPage extends VBox {
         if (compilerInstalledCheckBox.isSelected()) {
             compilerPath = "";
         } else {
-            compilerPath = compilerPathField.getText();
+            compilerPath = compilerPathField.getText().trim();
             if (compilerPath.isEmpty()) {
                 Alert error = new Alert(Alert.AlertType.ERROR);
                 error.setHeaderText("Please select a compiler executable!");
@@ -208,10 +228,25 @@ public class EditConfigurationPage extends VBox {
             }
         }
 
-        Path outputDir = Paths.get(System.getProperty("user.home"), "Desktop", "CE316", "Project", "CE-316", "app", "src", "main", "java", "ce316project", "output");
+        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
 
         if (!outputDir.toFile().exists()) {
             outputDir.toFile().mkdirs();
+        }
+
+        File oldFile = outputDir.resolve(selectedConfig + ".json").toFile();
+        File newFile = outputDir.resolve(configName + ".json").toFile();
+
+        boolean isRenamed = !selectedConfig.equals(configName);
+
+        if (isRenamed) {
+            if (oldFile.exists()) {
+                oldFile.delete();
+            }
+            configSelector.getItems().remove(selectedConfig);
+            if (!configSelector.getItems().contains(configName)) {
+                configSelector.getItems().add(configName);
+            }
         }
 
         Configuration updatedConfig = new Configuration(
@@ -219,24 +254,220 @@ public class EditConfigurationPage extends VBox {
                 executableExtension,
                 language,
                 compilerCommand,
-                Arrays.asList(compilerParameters.split("\\s+")),
+                compilerParameters.isEmpty() ? Arrays.asList() : Arrays.asList(compilerParameters.split("\\s+")),
                 runCommand,
-                Arrays.asList(runParameters.split("\\s+")),
+                runParameters.isEmpty() ? Arrays.asList() : Arrays.asList(runParameters.split("\\s+")),
                 compilerPath
         );
 
         Genson genson = new Genson();
         String json = genson.serialize(updatedConfig);
 
-        File outputFile = outputDir.resolve(configName + ".json").toFile();
-        try (FileWriter writer = new FileWriter(outputFile)) {
+        try (FileWriter writer = new FileWriter(newFile)) {
             writer.write(json);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        configSelector.setValue(configName);
+        loadConfiguration(configName);
+
         Alert success = new Alert(Alert.AlertType.INFORMATION);
         success.setHeaderText("Configuration updated successfully!");
         success.showAndWait();
     }
+
+
+
+    private void deleteSelectedConfiguration() {
+        String selectedConfig = configSelector.getValue();
+
+        if (selectedConfig == null || selectedConfig.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("No configuration selected!");
+            alert.setContentText("Please select a configuration to delete.");
+            alert.showAndWait();
+            return;
+        }
+
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Delete Confirmation");
+        confirmation.setHeaderText("Are you sure you want to delete '" + selectedConfig + "'?");
+        confirmation.setContentText("This action cannot be undone.");
+
+        confirmation.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
+                File configFile = outputDir.resolve(selectedConfig + ".json").toFile();
+
+                if (configFile.exists()) {
+                    if (configFile.delete()) {
+                        configSelector.getItems().remove(selectedConfig);
+                        clearFields();
+
+                        Alert success = new Alert(Alert.AlertType.INFORMATION);
+                        success.setHeaderText("Configuration deleted successfully!");
+                        success.showAndWait();
+                    } else {
+                        Alert error = new Alert(Alert.AlertType.ERROR);
+                        error.setHeaderText("Failed to delete the configuration file.");
+                        error.showAndWait();
+                    }
+                }
+            }
+        });
+    }
+
+    private void importConfiguration() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import Configuration File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+
+        File selectedFile = fileChooser.showOpenDialog(stageReference);
+
+        if (selectedFile == null) {
+            return;
+        }
+
+        Path outputDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "output");
+
+        if (!outputDir.toFile().exists()) {
+            outputDir.toFile().mkdirs();
+        }
+
+        try (FileReader reader = new FileReader(selectedFile)) {
+            Genson genson = new Genson();
+            Configuration config = genson.deserialize(reader, Configuration.class);
+
+            String configName = config.getConfigName();
+
+            if (configSelector.getItems().contains(configName)) {
+                Alert duplicateAlert = new Alert(Alert.AlertType.ERROR);
+                duplicateAlert.setTitle("Import Error");
+                duplicateAlert.setHeaderText("Duplicate Configuration Name Detected");
+                duplicateAlert.setContentText("A configuration with the name '" + configName + "' already exists.\nDuplicate configuration name is not allowed.");
+                duplicateAlert.showAndWait();
+                return;
+            }
+
+            File destFile = outputDir.resolve(configName + ".json").toFile();
+            java.nio.file.Files.copy(selectedFile.toPath(), destFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+            StringBuilder failedFields = new StringBuilder();
+
+            try {
+                configNameField.setText(config.getConfigName());
+            } catch (Exception e) {
+                configNameField.clear();
+                failedFields.append("Configuration Name\n");
+            }
+
+            try {
+                progLangField.setText(config.getLanguage());
+            } catch (Exception e) {
+                progLangField.clear();
+                failedFields.append("Programming Language\n");
+            }
+
+            try {
+                executableExtensionField.setText(config.getExecutableExtension());
+            } catch (Exception e) {
+                executableExtensionField.clear();
+                failedFields.append("Executable Extension\n");
+            }
+
+            try {
+                compilerCommandField.setText(config.getCompilerCommand());
+            } catch (Exception e) {
+                compilerCommandField.clear();
+                failedFields.append("Compiler Command\n");
+            }
+
+            try {
+                compilerParametersField.setText(String.join(" ", config.getCompilerParameters()));
+            } catch (Exception e) {
+                compilerParametersField.clear();
+                failedFields.append("Compiler Parameters\n");
+            }
+
+            try {
+                runCommandField.setText(config.getRunCommand());
+            } catch (Exception e) {
+                runCommandField.clear();
+                failedFields.append("Run Command\n");
+            }
+
+            try {
+                runParametersField.setText(String.join(" ", config.getRunParameters()));
+            } catch (Exception e) {
+                runParametersField.clear();
+                failedFields.append("Run Parameters\n");
+            }
+
+            try {
+                if (config.getCompilerPath() == null || config.getCompilerPath().isEmpty()) {
+                    compilerInstalledCheckBox.setSelected(true);
+                    compilerPathField.clear();
+                    compilerPathField.setVisible(false);
+                    selectCompilerButton.setVisible(false);
+                } else {
+                    compilerInstalledCheckBox.setSelected(false);
+                    compilerPathField.setText(config.getCompilerPath());
+                    compilerPathField.setVisible(true);
+                    selectCompilerButton.setVisible(true);
+                }
+            } catch (Exception e) {
+                compilerInstalledCheckBox.setSelected(true);
+                compilerPathField.clear();
+                compilerPathField.setVisible(false);
+                selectCompilerButton.setVisible(false);
+                failedFields.append("Compiler Path\n");
+            }
+
+
+            configSelector.getItems().add(configName);
+            configSelector.setValue(configName);
+
+
+            if (failedFields.length() > 0) {
+                Alert warning = new Alert(Alert.AlertType.WARNING);
+                warning.setTitle("Import Completed with Warnings");
+                warning.setHeaderText("Some fields could not be parsed:");
+                warning.setContentText(failedFields.toString());
+                warning.showAndWait();
+            } else {
+                Alert success = new Alert(Alert.AlertType.INFORMATION);
+                success.setHeaderText("Configuration imported successfully!");
+                success.showAndWait();
+            }
+
+        } catch (IOException e) {
+            Alert error = new Alert(Alert.AlertType.ERROR);
+            error.setHeaderText("Failed to import configuration.");
+            error.setContentText(e.getMessage());
+            error.showAndWait();
+        } catch (Exception parseException) {
+            Alert error = new Alert(Alert.AlertType.ERROR);
+            error.setHeaderText("Error while parsing the configuration file.");
+            error.setContentText(parseException.getMessage());
+            error.showAndWait();
+        }
+    }
+
+
+
+    private void clearFields() {
+        configNameField.clear();
+        progLangField.clear();
+        executableExtensionField.clear();
+        compilerCommandField.clear();
+        compilerParametersField.clear();
+        runCommandField.clear();
+        runParametersField.clear();
+        compilerInstalledCheckBox.setSelected(true);
+        compilerPathField.clear();
+        compilerPathField.setVisible(false);
+        selectCompilerButton.setVisible(false);
+    }
+
 }
