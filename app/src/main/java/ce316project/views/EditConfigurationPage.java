@@ -186,6 +186,15 @@ public class EditConfigurationPage extends VBox {
     }
 
     private void saveConfiguration() {
+        String selectedConfig = configSelector.getValue();
+        if (selectedConfig == null || selectedConfig.isEmpty()) {
+            Alert error = new Alert(Alert.AlertType.ERROR);
+            error.setHeaderText("No configuration selected!");
+            error.setContentText("Please select a configuration to edit.");
+            error.showAndWait();
+            return;
+        }
+
         String configName = configNameField.getText();
         String language = progLangField.getText();
         String compilerCommand = compilerCommandField.getText();
