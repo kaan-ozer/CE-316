@@ -10,7 +10,6 @@ import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.util.HashMap;
 
 public class MainPage extends VBox {
 
