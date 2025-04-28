@@ -13,6 +13,7 @@ public class Configuration {
     private String runCommand;
     private List<String> runParameters;
     private String executableExtension;
+    private String sourceExtension;
 
     public Configuration(String configName, String executableExtension, String language, String compilerCommand,
                          List<String> compilerParameters, String runCommand, List<String> runParameters, String compilerPath) {

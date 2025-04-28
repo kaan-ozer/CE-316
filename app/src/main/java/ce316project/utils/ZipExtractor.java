@@ -6,7 +6,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
@@ -15,20 +18,20 @@ import java.util.zip.ZipFile;
 public class ZipExtractor {
     
     private File zipsDirectory;
-    private Path outputDir;
+    private ConcurrentHashMap<String, Path> studentEntries = new ConcurrentHashMap<>();
 
     public ZipExtractor(String zipsPath) {
         this.zipsDirectory = new File(zipsPath);
     }
 
-    public void extractZipsConcurrently()
+    public Map<String,Path> extractZipsConcurrently()
     {
         File[] zipFiles = zipsDirectory.listFiles((dir,name) -> name.endsWith(".zip"));
 
         if(zipFiles == null || zipFiles.length == 0)
         {
             System.out.println("No zip files found in directory.");
-            return;
+            return Collections.emptyMap();
         }
 
         int threadCount = Runtime.getRuntime().availableProcessors();
@@ -36,17 +39,18 @@ public class ZipExtractor {
 
         for (File zipFile : zipFiles) {
             executor.submit(() -> {
-                String studentId = zipFile.getName().replaceFirst("\\.zip$", "");
-                Path outputDir = zipsDirectory.toPath().resolve(studentId);
+                String studentId = zipFile.getName().replaceFirst("\\.zip$","");
+                Path outputDir = zipsDirectory.toPath()
+                                .resolve("Submissions");
 
                 try {
                     Files.createDirectories(outputDir);
                     extractZip(zipFile, outputDir);
+                    studentEntries.put(studentId, outputDir.resolve(studentId));
                     System.out.println("Extracted: " + zipFile.getName() + " on thread: " + Thread.currentThread().getName());
                 } catch (IOException e) {
                     System.err.println("Failed to extract " + zipFile.getName() + ": " + e.getMessage());
                 }
-
             });
         }
 
@@ -56,6 +60,7 @@ public class ZipExtractor {
         } catch (InterruptedException e) {
             System.err.println("Interrupted while waiting for tasks to complete.");
         }
+        return studentEntries;
     }
 
     private void extractZip(File zipFile, Path outputDir) throws IOException
@@ -70,7 +75,6 @@ public class ZipExtractor {
                 if(!entryPath.startsWith(outputDir)) {
                     throw new IOException("Entry is outside of the target directory: " + entry.getName());
                 }
-
                 if(entry.isDirectory()) {
                     Files.createDirectories(entryPath);
                 } else {
@@ -81,6 +85,15 @@ public class ZipExtractor {
                 }
             }
        }
-    
     }
+
+    public File getZipsDirectory() {
+        return zipsDirectory;
+    }
+
+    public Map<String, Path> getStudentEntries()
+    {
+        return studentEntries;
+    }
+
 }

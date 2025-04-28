@@ -1,7 +1,12 @@
 package ce316project.entities;
 
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import ce316project.utils.SubmissionsWorker;
+import ce316project.utils.ZipExtractor;
 
 public class Project {
 
@@ -21,7 +26,36 @@ public class Project {
         this.referencePath = referencePath;
     }
 
+    public void prepareSubmissions(String submissionsDirectory)
+    {
+        ZipExtractor zipExtractor = new ZipExtractor(submissionsDirectory);
+        Map<String,Path> studentEntries = zipExtractor.extractZipsConcurrently();
 
+        for(Map.Entry<String,Path> entry : studentEntries.entrySet())
+        {
+            Student student = new Student(
+                entry.getKey(), 
+                entry.getValue().toString()
+            );
+            students.add(student);
+        }
+    }
+
+    public void compileSubmissions()
+    {
+        SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, config);
+        submissionsWorker.compileSubmissions();
+
+    }
+
+    public void runSubmissions(String submissionsDirectory)
+    {
+
+        // Run Submissions
+
+    }
+
+    
     public String getProjectName() {
         return projectName;
     }
@@ -68,21 +102,6 @@ public class Project {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
-    }
-
-    public void runSubmissions(String submissionsDirectory)
-    {
-        // Prepare Submissions
-        
-
-
-        // Compiler Submissions
-
-
-
-        // Run Submissions
-
-
     }
 
 }
