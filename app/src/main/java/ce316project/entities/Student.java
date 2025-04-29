@@ -8,6 +8,8 @@ public class Student {
     private ExecutionResult executionResult;
     private CompilationResult compilationResult;
     private Status status;
+    private Boolean submissionPassed;
+
 
     public Student(String studentId, String directoryPath)
     {
@@ -48,5 +50,14 @@ public class Student {
         this.status = status;
     }
 
-    
+    public Boolean getSubmissionPassed() {
+        return submissionPassed;
+    }
+
+    public void setSubmissionPassed(Boolean submissionPassed) {
+        this.submissionPassed = submissionPassed;
+    }
+
+
+
 }

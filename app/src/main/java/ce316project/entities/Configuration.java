@@ -39,6 +39,7 @@ public class Configuration {
     public String getRunCommand() { return runCommand; }
     public List<String> getRunParameters() { return runParameters; }
     public String getExecutableExtension() { return executableExtension; }
+    public String getSourceExtension() { return sourceExtension; }
 
     public void setConfigName(String configId) { this.configName = configId; }
     public void setLanguage(String language) { this.language = language; }
@@ -48,4 +49,5 @@ public class Configuration {
     public void setRunCommand(String runCommand) { this.runCommand = runCommand; }
     public void setRunParameters(List<String> runParameters) { this.runParameters = runParameters; }
     public void setExecutableExtension(String executableExtension) { this.executableExtension = executableExtension; }
+    public void setSourceExtension(String sourceExtension) { this.sourceExtension = sourceExtension; }
 }

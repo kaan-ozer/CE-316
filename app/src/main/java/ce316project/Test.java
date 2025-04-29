@@ -11,7 +11,6 @@ import ce316project.utils.SubmissionsWorker;
 import ce316project.utils.ZipExtractor;
 
 public class Test {
-
     public static void main(String[] args) {
 
         List<Student> students = new ArrayList<>();
