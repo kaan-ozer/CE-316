@@ -112,7 +112,11 @@ public class EditConfigurationPage extends VBox {
         importButton.setStyle("-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 14px;");
         importButton.setOnAction(e -> importConfiguration());
 
-        HBox buttonsBox = new HBox(20, saveButton, deleteButton, importButton);
+        Button exportButton = new Button("Export Configuration");
+        exportButton.setStyle("-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-font-size: 14px;");
+        exportButton.setOnAction(e -> exportConfiguration());
+
+        HBox buttonsBox = new HBox(20, saveButton, deleteButton, importButton, exportButton);
         buttonsBox.setAlignment(Pos.CENTER);
 
 
@@ -277,8 +281,6 @@ public class EditConfigurationPage extends VBox {
         success.setHeaderText("Configuration updated successfully!");
         success.showAndWait();
     }
-
-
 
     private void deleteSelectedConfiguration() {
         String selectedConfig = configSelector.getValue();
@@ -455,7 +457,52 @@ public class EditConfigurationPage extends VBox {
         }
     }
 
+    private void exportConfiguration() {
+        String selectedConfig = configSelector.getValue();
 
+        if (selectedConfig == null || selectedConfig.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("No configuration selected!");
+            alert.setContentText("Please select a configuration to export.");
+            alert.showAndWait();
+            return;
+        }
+
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        File configFile = configsDir.resolve(selectedConfig + ".json").toFile();
+
+        if (!configFile.exists()) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Configuration file not found!");
+            alert.setContentText("The selected configuration could not be found.");
+            alert.showAndWait();
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Configuration As");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        fileChooser.setInitialFileName(selectedConfig + ".json");
+
+        File targetFile = fileChooser.showSaveDialog(stageReference);
+
+        if (targetFile == null) {
+            return;
+        }
+
+        try {
+            java.nio.file.Files.copy(configFile.toPath(), targetFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            Alert success = new Alert(Alert.AlertType.INFORMATION);
+            success.setHeaderText("Export successful!");
+            success.setContentText("Configuration exported to:\n" + targetFile.getAbsolutePath());
+            success.showAndWait();
+        } catch (IOException e) {
+            Alert error = new Alert(Alert.AlertType.ERROR);
+            error.setHeaderText("Export failed!");
+            error.setContentText(e.getMessage());
+            error.showAndWait();
+        }
+    }
 
     private void clearFields() {
         configNameField.clear();
