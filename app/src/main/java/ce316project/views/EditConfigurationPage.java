@@ -135,7 +135,6 @@ public class EditConfigurationPage extends VBox {
         );
     }
 
-    //TODO: Missing export functionality
     private void loadConfigurationFiles() {
         Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
         File folder = configsDir.toFile();
