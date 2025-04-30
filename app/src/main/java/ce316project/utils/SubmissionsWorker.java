@@ -65,14 +65,14 @@ public class SubmissionsWorker {
             List<File> sourceFiles = Files.walk(submissionDir)
                 .filter(Files::isRegularFile)
                 .map(Path::toFile)
-                .filter(f -> f.getName().endsWith(config.getSourceExtention()))
+                .filter(f -> f.getName().endsWith(config.getExecutableExtension()))
                 .collect(Collectors.toList());
             
             if(sourceFiles.isEmpty()) {
                 return new CompilationResult(false, "No Source File Found", "", Duration.between(start, Instant.now()));
             }
 
-            List<String> command = buildCompilerCommand(submissionDir, sourceFiles);
+            List<String> command = buildCompilerCommand(student.getStudentId(),submissionDir, sourceFiles);
 
             Process process = new ProcessBuilder()
                 .directory(submissionDir.toFile())
@@ -81,12 +81,12 @@ public class SubmissionsWorker {
                 .start();
             
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder outpBuilder = new StringBuilder();
+            StringBuilder outputBuilder = new StringBuilder();
             String line;
             while((line = reader.readLine()) != null) {
-                outpBuilder.append(line).append("\n");
+                outputBuilder.append(line).append("\n");
             }
-            output = outpBuilder.toString().trim();
+            output = outputBuilder.toString().trim();
 
             int exitCode = process.waitFor();
             success = exitCode == 0;
@@ -97,7 +97,7 @@ public class SubmissionsWorker {
 
         } catch (IOException | InterruptedException e) {
             output = "Compilation failed: " + e.getMessage();
-            success = false;
+            success = false; // Status.ERROR
         }
 
         return new CompilationResult(
@@ -109,7 +109,7 @@ public class SubmissionsWorker {
 
     }
 
-    private List<String> buildCompilerCommand(Path submissionDir, List<File> sourceFiles)
+    private List<String> buildCompilerCommand(String studentId, Path submissionDir, List<File> sourceFiles)
     {
         List<String> command = new ArrayList<>();
         command.add(config.getCompilerPath());
@@ -119,11 +119,11 @@ public class SubmissionsWorker {
             command.add(config.getCompilerCommand());
         }
 
-        String outputFile = submissionDir.resolve("output" + config.getExecutableExtension()).toString();
+        String outputFileName = studentId + "_output";
 
         for (String param : config.getCompilerParameters()) {
             if (param.equals("{output}")) {
-                command.add(outputFile);
+                command.add(outputFileName);
             } 
             else if (param.equals("{sources}")) {
                 sourceFiles.forEach(f -> command.add(f.toString()));
@@ -132,6 +132,8 @@ public class SubmissionsWorker {
                 command.add(param);
             }
         }
+
+        System.out.println(command);
 
         return command;
     }
