@@ -7,5 +7,7 @@ public enum Status{
     READY,
     EXECUTING,
     COMPLETED,
-    ERROR
+    ERROR,
+    PASSED,
+    FAILED
 }

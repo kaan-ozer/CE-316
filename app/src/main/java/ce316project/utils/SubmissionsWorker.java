@@ -61,44 +61,6 @@ public class SubmissionsWorker {
         String output = "";
         String outputPath = "";
 
-        try {
-            List<File> sourceFiles = Files.walk(submissionDir)
-                .filter(Files::isRegularFile)
-                .map(Path::toFile)
-                .filter(f -> f.getName().endsWith(config.getSourceExtention()))
-                .collect(Collectors.toList());
-            
-            if(sourceFiles.isEmpty()) {
-                return new CompilationResult(false, "No Source File Found", "", Duration.between(start, Instant.now()));
-            }
-
-            List<String> command = buildCompilerCommand(submissionDir, sourceFiles);
-
-            Process process = new ProcessBuilder()
-                .directory(submissionDir.toFile())
-                .command(command)
-                .redirectErrorStream(true)
-                .start();
-            
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            StringBuilder outpBuilder = new StringBuilder();
-            String line;
-            while((line = reader.readLine()) != null) {
-                outpBuilder.append(line).append("\n");
-            }
-            output = outpBuilder.toString().trim();
-
-            int exitCode = process.waitFor();
-            success = exitCode == 0;
-
-            if(success) {
-                outputPath = findOutputFile(submissionDir).toString();
-            }
-
-        } catch (IOException | InterruptedException e) {
-            output = "Compilation failed: " + e.getMessage();
-            success = false;
-        }
 
         return new CompilationResult(
             success, 
@@ -144,6 +106,37 @@ public class SubmissionsWorker {
             .orElseThrow(() -> new IOException("Output file nor found"));
     }
 
+
+    public void compareSubmissions(String referencePath) // NOT sure writing referencePath as a parameter is a good idea. Mert should check whether is suitable or not.
+    {
+        //TODO read txt file from referencePath and compare with output of each student.
+        StringBuilder result = new StringBuilder();
+
+        try {
+            Files.lines(Paths.get(referencePath)).forEach(line -> result.append(line).append("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Converting Ilker's file to string.
+        String fileContent = result.toString();
+        System.out.println(fileContent);
+
+        for (Student student : students ) {
+            if(student.getStatus() == Status.COMPLETED){
+                if(student.getExecutionResult().equals(fileContent)){
+                    student.setStatus(Status.PASSED);
+                }
+                else {
+                    student.setStatus(Status.FAILED);
+                }
+            }
+            else {
+                //Student Got broken codes so maybe status set to be failed in future.
+                //student.setStatus(Status.FAILED);
+            }
+        }
+
+    }
     /* 
     private ExecutionResult executeSubmission(Student student)
     {

@@ -1,0 +1,50 @@
+Index: app/src/main/java/ce316project/utils/SubmissionThread.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package ce316project.utils;\n\nimport ce316project.entities.CompilationResult;\nimport ce316project.entities.ExecutionResult;\n\npublic class SubmissionThread {\n    private ExecutionResult executionResult;\n    private CompilationResult compilationResult;\n    private Status status;\n\n    public SubmissionThread(ExecutionResult executionResult, CompilationResult compilationResult, Status status) {\n        this.executionResult = executionResult;\n        this.compilationResult = compilationResult;\n        this.status = status;\n    }\n    \n    /* \n    public CompilationResult compile()\n    {\n        \n    }\n\n    public ExecutionResult execute()\n    {\n        \n    }\n    */\n\n}\n
+===================================================================
+diff --git a/app/src/main/java/ce316project/utils/SubmissionThread.java b/app/src/main/java/ce316project/utils/SubmissionThread.java
+--- a/app/src/main/java/ce316project/utils/SubmissionThread.java	(revision 8a4e5868021e5a27ef0d314fbcac0841e7f9cf48)
++++ b/app/src/main/java/ce316project/utils/SubmissionThread.java	(date 1745844652345)
+@@ -3,7 +3,7 @@
+ import ce316project.entities.CompilationResult;
+ import ce316project.entities.ExecutionResult;
+ 
+-public class SubmissionThread {
++public class SubmissionThread extends Thread {
+     private ExecutionResult executionResult;
+     private CompilationResult compilationResult;
+     private Status status;
+@@ -13,7 +13,7 @@
+         this.compilationResult = compilationResult;
+         this.status = status;
+     }
+-    
++
+     /* 
+     public CompilationResult compile()
+     {
+@@ -25,5 +25,23 @@
+         
+     }
+     */
++    @Override
++    public void run() {
++        //TODO add execution and compilation here according to compilar options and path for each individual student coming from Configuration class
++
++    }
++
++    public void compile(String compilerPath) {
++        /*
++        After executing the task in a separate thread, the method will return the compilation result and assign it to
++         this.compilationResult. This stored result is then used locally
++         within the class for comparison in the executionResult() and compilationResult() methods.
++         */
++    }
++    public void execute(String executionPath) {
++
++    }
++
++
+ 
+ }
