@@ -121,7 +121,6 @@ public class SubmissionsWorker {
             output, 
             Duration.between(start, Instant.now())
         );
-
     }
 
     private List<String> buildCompilerCommand(String studentId, Path submissionDir, List<File> sourceFiles)
@@ -158,7 +157,38 @@ public class SubmissionsWorker {
             .orElseThrow(() -> new IOException("Output file not found"));
     }
 
-    public void executeSubmissions()
+    public void compareSubmissions(String referencePath) // NOT sure writing referencePath as a parameter is a good idea. Mert should check whether is suitable or not.
+    {
+        //TODO read txt file from referencePath and compare with output of each student.
+        StringBuilder result = new StringBuilder();
+
+        try {
+            Files.lines(Paths.get(referencePath)).forEach(line -> result.append(line).append("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Converting Ilker's file to string.
+        String fileContent = result.toString();
+        System.out.println(fileContent);
+
+        for (Student student : students ) {
+            if(student.getStatus() == Status.COMPLETED){
+                if(student.getExecutionResult().equals(fileContent)){
+                    student.setStatus(Status.PASSED);
+                }
+                else {
+                    student.setStatus(Status.FAILED);
+                }
+            }
+            else {
+                //Student Got broken codes so maybe status set to be failed in future.
+                //student.setStatus(Status.FAILED);
+            }
+        }
+
+    }
+  
+    private ExecutionResult executeSubmission(Student student)
     {
         ExecutorService executor = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors()

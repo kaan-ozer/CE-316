@@ -134,35 +134,41 @@ public class CreateConfigurationPage extends VBox {
                                    TextField compilerParamsField, TextField runCommandField, TextField runParamsField,
                                    TextField executableExtensionField, TextField sourceExtensionField) throws IOException {
 
-        String configName = configNameField.getText();
-        String language = progLangField.getText();
-        String compilerCommand = compilerCommandField.getText();
-        String compilerParameters = compilerParamsField.getText();
-        String runCommand = runCommandField.getText();
-        String runParameters = runParamsField.getText();
-        String executableExtension = executableExtensionField.getText();
-        String sourceExtension = sourceExtensionField.getText();
+        String configName = configNameField.getText().trim();
+        String language = progLangField.getText().trim().toLowerCase();
+        String compilerCommand = compilerCommandField.getText().trim();
+        String compilerParameters = compilerParamsField.getText().trim();
+        String runCommand = runCommandField.getText().trim();
+        String runParameters = runParamsField.getText().trim();
+        String executableExtension = executableExtensionField.getText().trim();
+        String sourceExtension = sourceExtensionField.getText().trim();
+        String compilerPath = compilerInstalledCheckBox.isSelected() ? "" : compilerPathField.getText().trim();
 
-        if (configName.isEmpty() || language.isEmpty() || compilerCommand.isEmpty() || compilerParameters.isEmpty()
-                || runCommand.isEmpty() || runParameters.isEmpty() || executableExtension.isEmpty() || sourceExtension.isEmpty()) {
-            Alert error = new Alert(Alert.AlertType.ERROR);
-            error.setHeaderText("Please fill all fields!");
-            error.showAndWait();
-            return;
+        StringBuilder missingFields = new StringBuilder();
+
+
+        if (configName.isEmpty()) missingFields.append("- Configuration Name\n");
+        if (language.isEmpty()) missingFields.append("- Programming Language\n");
+        if (runCommand.isEmpty()) missingFields.append("- Run Command\n");
+        if (executableExtension.isEmpty()) missingFields.append("- Executable File Extension\n");
+        if (sourceExtension.isEmpty()) missingFields.append("- Source File Extension\n");
+
+        boolean needsCompiler = language.equals("c") || language.equals("c++") || language.equals("cpp") || language.equals("java");
+
+        if (needsCompiler) {
+            if (compilerCommand.isEmpty()) missingFields.append("- Compiler Command\n");
+            if (!compilerInstalledCheckBox.isSelected() && compilerPath.isEmpty()) {
+                missingFields.append("- Compiler Path (since compiler is not installed)\n");
+            }
         }
 
-        String compilerPath;
-
-        if (compilerInstalledCheckBox.isSelected()) {
-            compilerPath = "";
-        } else {
-            compilerPath = compilerPathField.getText();
-            if (compilerPath.isEmpty()) {
-                Alert error = new Alert(Alert.AlertType.ERROR);
-                error.setHeaderText("Please select a compiler executable!");
-                error.showAndWait();
-                return;
-            }
+        if (missingFields.length() > 0) {
+          
+            Alert error = new Alert(Alert.AlertType.ERROR);
+            error.setHeaderText("Please fill the following required field(s):");
+            error.setContentText(missingFields.toString());
+            error.showAndWait();
+            return;
         }
 
         Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
@@ -171,22 +177,31 @@ public class CreateConfigurationPage extends VBox {
             configsDir.toFile().mkdirs();
         }
 
+        File outputFile = configsDir.resolve(configName + ".json").toFile();
+        if (outputFile.exists()) {
+            Alert duplicateAlert = new Alert(Alert.AlertType.ERROR);
+            duplicateAlert.setTitle("Duplicate Configuration Name");
+            duplicateAlert.setHeaderText("A configuration with the same name already exists.");
+            duplicateAlert.setContentText("Please choose a different configuration name.");
+            duplicateAlert.showAndWait();
+            return;
+        }
+
         Configuration config = new Configuration(
                 configName,
                 executableExtension,
                 language,
                 compilerCommand,
-                Arrays.asList(compilerParameters.split("\\s+")),
+                compilerParameters.isEmpty() ? Arrays.asList() : Arrays.asList(compilerParameters.split("\\s+")),
                 runCommand,
-                Arrays.asList(runParameters.split("\\s+")),
-                compilerPath,
+                runParameters.isEmpty() ? Arrays.asList() : Arrays.asList(runParameters.split("\\s+")),
+                compilerPath
                 sourceExtension
         );
 
         Genson genson = new Genson();
         String json = genson.serialize(config);
 
-        File outputFile = configsDir.resolve(configName + ".json").toFile();
         try (FileWriter writer = new FileWriter(outputFile)) {
             writer.write(json);
         }
@@ -196,7 +211,8 @@ public class CreateConfigurationPage extends VBox {
         }
 
         Alert success = new Alert(Alert.AlertType.INFORMATION);
-        success.setHeaderText("Configuration saved successfully to:\n" + outputFile.getAbsolutePath());
+        success.setHeaderText("Configuration saved successfully!");
+        success.setContentText("Saved at: " + outputFile.getAbsolutePath());
         success.showAndWait();
     }
 
