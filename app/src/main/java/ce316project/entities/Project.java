@@ -50,9 +50,8 @@ public class Project {
 
     public void runSubmissions(String submissionsDirectory)
     {
-
-        // Run Submissions
-
+        SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, config);
+        submissionsWorker.executeSubmissions();
     }
 
     

@@ -16,7 +16,7 @@ public class Configuration {
     private String sourceExtension;
 
     public Configuration(String configName, String executableExtension, String language, String compilerCommand,
-                         List<String> compilerParameters, String runCommand, List<String> runParameters, String compilerPath) {
+                         List<String> compilerParameters, String runCommand, List<String> runParameters, String compilerPath, String sourceExtension) {
         this.configName = configName;
         this.language = language;
         this.compilerPath = compilerPath;
@@ -25,6 +25,7 @@ public class Configuration {
         this.runCommand = runCommand;
         this.runParameters = runParameters;
         this.executableExtension = executableExtension;
+        this.sourceExtension = sourceExtension;
     }
 
     public Configuration() {
@@ -37,8 +38,9 @@ public class Configuration {
     public String getCompilerCommand() { return compilerCommand; }
     public List<String> getCompilerParameters() { return compilerParameters; }
     public String getRunCommand() { return runCommand; }
-    public List<String> getRunParameters() { return runParameters; }
-    public String getExecutableExtension() { return executableExtension; }
+    public List<String> getRunParameters() { return runParameters;}
+    public String getExecutableExtension() { return executableExtension;}
+    public String getSourceExtension() { return sourceExtension;}
 
     public void setConfigName(String configId) { this.configName = configId; }
     public void setLanguage(String language) { this.language = language; }
@@ -48,4 +50,7 @@ public class Configuration {
     public void setRunCommand(String runCommand) { this.runCommand = runCommand; }
     public void setRunParameters(List<String> runParameters) { this.runParameters = runParameters; }
     public void setExecutableExtension(String executableExtension) { this.executableExtension = executableExtension; }
+    public void setSourceExtension(String sourceExtension) { this.sourceExtension = sourceExtension;}
+    
+    
 }

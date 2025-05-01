@@ -31,19 +31,24 @@ public class Test {
 
         Configuration config = new Configuration(
             "C Config",
-            ".c",
+            ".exe",
             "C",
-            "",
+            "gcc",
             List.of("-o","{output}","{sources}"),
-            "./output",
+            "",
             List.of(),
-            "C:\\TDM-GCC-64\\bin\\gcc.exe"
+            "C:\\TDM-GCC-64\\bin\\gcc.exe",
+            ".c"
         );
 
         SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, config);
-        submissionsWorker.compileSubmissions();
+        //submissionsWorker.compileSubmissions();
+        submissionsWorker.executeSubmissions();
 
-        System.out.println(students.get(0).getCompilationResult().getCompilerOutput());
+        for(int i=0; i<students.size(); i++)
+        {
+            System.err.println(students.get(i).getExecutionResult());
+        }
         
         
 

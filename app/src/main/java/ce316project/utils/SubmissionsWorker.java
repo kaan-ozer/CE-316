@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import ce316project.entities.CompilationResult;
@@ -65,7 +66,7 @@ public class SubmissionsWorker {
             List<File> sourceFiles = Files.walk(submissionDir)
                 .filter(Files::isRegularFile)
                 .map(Path::toFile)
-                .filter(f -> f.getName().endsWith(config.getExecutableExtension()))
+                .filter(f -> f.getName().endsWith(config.getSourceExtension()))
                 .collect(Collectors.toList());
             
             if(sourceFiles.isEmpty()) {
@@ -143,23 +144,138 @@ public class SubmissionsWorker {
             .toString()
             .endsWith(config.getExecutableExtension()))
             .findFirst()
-            .orElseThrow(() -> new IOException("Output file nor found"));
+            .orElseThrow(() -> new IOException("Output file not found"));
     }
 
-    /* 
+    public void executeSubmissions()
+    {
+        ExecutorService executor = Executors.newFixedThreadPool(
+            Runtime.getRuntime().availableProcessors()
+        );
+
+        for (Student student : students) {
+            executor.submit(() -> {
+                ExecutionResult result = executeSubmission(student);
+                student.setExecutionResult(result);
+            });
+        }
+
+        executor.shutdown();
+        
+        try {
+            if (!executor.awaitTermination(1, TimeUnit.HOURS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private ExecutionResult executeSubmission(Student student)
     {
-        int exitCode;
-        String stdOut, stdError;
+        Instant start = Instant.now();
+        int exitCode = 1;
+        String stdOut = "";
+        String stdError = "";
+        Duration executionDuration;
 
+        try {
+            Path submissionDir = Paths.get(student.getDirectoryPath());
+            List<String> command = buildExecutionCommand(student.getStudentId(), submissionDir);
 
-        return new ExecutionResult(exitCode, stdOut, stdError, null);
+            Process process = new ProcessBuilder()
+                .directory(submissionDir.toFile())
+                .command(command)
+                .redirectErrorStream(false)
+                .start();
+            
+            BufferedReader stdOutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader stdErrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+            StringBuilder stdOutBuilder = new StringBuilder();
+            StringBuilder stdErrBuilder = new StringBuilder();
+            
+            Thread outThread = new Thread(() -> {
+                try {
+                    String line;
+                    while((line = stdOutReader.readLine()) != null) {
+                        stdOutBuilder.append(line).append("\n");
+                    }
+                } catch (IOException e) {
+                    stdErrBuilder.append("stdout read error: ").append(e.getMessage());
+                }
+            });
+
+            Thread errThread = new Thread(() -> {
+                try {
+                    String line;
+                    while((line = stdErrReader.readLine()) != null) {
+                        stdErrBuilder.append(line).append("\n");
+                    }
+                } catch (IOException e) {
+                    stdErrBuilder.append("stdout read error: ").append(e.getMessage());
+                }
+            });
+
+            outThread.start();
+            errThread.start();
+
+            exitCode = process.waitFor();
+
+            outThread.join();
+            errThread.join();
+
+            stdOutReader.close();
+            stdErrReader.close();
+            process.getInputStream().close();
+            process.getErrorStream().close();
+            process.getOutputStream().close();
+
+            stdOut = stdOutBuilder.toString().trim();
+            stdError = stdErrBuilder.toString().trim();
+             
+        } catch (IOException | InterruptedException e) {
+            stdError = "Execution failed: "+ e.getMessage();
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+        } finally {
+            executionDuration = Duration.between(start, Instant.now());
+        }
+
+        return new ExecutionResult(exitCode, stdOut, stdError, executionDuration);
     }
-    
-    public ExecutionResult execute()
-    {
-        
+
+    private List<String> buildExecutionCommand(String studentId, Path compileOutputDir) throws IOException {
+        String executableFileName = studentId + "_output" + config.getExecutableExtension();
+        Path executablePath = compileOutputDir.resolve(executableFileName);
+
+        if(!Files.exists(executablePath)) {
+            throw new IOException("Compile output not found: " + executablePath);
+        }
+
+        String outputBase = executableFileName.replace(config.getExecutableExtension(), "");
+        List<String> command = new ArrayList<>();
+
+        if(config.getRunParameters().isEmpty()) {
+            command.add(executablePath.toString());
+        } else {
+            for(String param : config.getRunParameters()) {
+                String processedParam = param
+                    .replace("{Output}", outputBase) // If param equals to target it replace else it directly pass it.
+                    .replace("{OutputFull}", executablePath.toString());
+                command.add(processedParam);
+            }
+        }
+
+        if (command.isEmpty()) {
+            command.add(executablePath.toString());
+        }
+
+        System.out.println(command);
+
+        return command;
     }
-    */
 
 }
