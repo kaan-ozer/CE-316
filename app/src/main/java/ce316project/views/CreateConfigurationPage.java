@@ -46,6 +46,10 @@ public class CreateConfigurationPage extends VBox {
         TextField executableExtensionField = new TextField();
         executableExtensionField.setPromptText("e.g., .exe or .out");
 
+        Label sourceExtensionLabel = new Label("Source File Extension:");
+        TextField sourceExtensionField = new TextField();
+        sourceExtensionField.setPromptText("e.g., .c or .java");
+
         Label compilerCommandLabel = new Label("Compiler Command:");
         TextField compilerCommandField = new TextField();
         compilerCommandField.setPromptText("e.g., gcc");
@@ -94,7 +98,7 @@ public class CreateConfigurationPage extends VBox {
 
         generateButton.setOnAction(e -> {
             try {
-                saveConfiguration(configNameField, progLangField, compilerCommandField, compilerParamsField, runCommandField, runParamsField, executableExtensionField);
+                saveConfiguration(configNameField, progLangField, compilerCommandField, compilerParamsField, runCommandField, runParamsField, executableExtensionField, sourceExtensionField);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -104,6 +108,7 @@ public class CreateConfigurationPage extends VBox {
                 configNameLabel, configNameField,
                 progLangLabel, progLangField,
                 executableExtensionLabel, executableExtensionField,
+                sourceExtensionLabel, sourceExtensionField,
                 compilerCommandLabel, compilerCommandField,
                 compilerParamsLabel, compilerParamsField,
                 runCommandLabel, runCommandField,
@@ -127,7 +132,7 @@ public class CreateConfigurationPage extends VBox {
 
     private void saveConfiguration(TextField configNameField, TextField progLangField, TextField compilerCommandField,
                                    TextField compilerParamsField, TextField runCommandField, TextField runParamsField,
-                                   TextField executableExtensionField) throws IOException {
+                                   TextField executableExtensionField, TextField sourceExtensionField) throws IOException {
 
         String configName = configNameField.getText();
         String language = progLangField.getText();
@@ -136,9 +141,10 @@ public class CreateConfigurationPage extends VBox {
         String runCommand = runCommandField.getText();
         String runParameters = runParamsField.getText();
         String executableExtension = executableExtensionField.getText();
+        String sourceExtension = sourceExtensionField.getText();
 
         if (configName.isEmpty() || language.isEmpty() || compilerCommand.isEmpty() || compilerParameters.isEmpty()
-                || runCommand.isEmpty() || runParameters.isEmpty() || executableExtension.isEmpty()) {
+                || runCommand.isEmpty() || runParameters.isEmpty() || executableExtension.isEmpty() || sourceExtension.isEmpty()) {
             Alert error = new Alert(Alert.AlertType.ERROR);
             error.setHeaderText("Please fill all fields!");
             error.showAndWait();
@@ -173,7 +179,8 @@ public class CreateConfigurationPage extends VBox {
                 Arrays.asList(compilerParameters.split("\\s+")),
                 runCommand,
                 Arrays.asList(runParameters.split("\\s+")),
-                compilerPath
+                compilerPath,
+                sourceExtension
         );
 
         Genson genson = new Genson();
