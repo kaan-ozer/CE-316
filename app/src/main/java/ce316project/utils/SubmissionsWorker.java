@@ -33,6 +33,20 @@ public class SubmissionsWorker {
 
     public void compileSubmissions()
     {
+        boolean isInterpreted = (config.getCompilerCommand() == null || config.getCompilerCommand().isEmpty())
+        && (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
+
+        if(isInterpreted) {
+            for(Student student : students) {
+                student.setCompilationResult(new CompilationResult(
+                    true, "",
+                     "Interpreted Language - no compilation required", 
+                    Duration.ZERO
+                ));
+            }
+            return;
+        }
+
         ExecutorService executor = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors()
         );
@@ -40,7 +54,6 @@ public class SubmissionsWorker {
         for(Student student : students) {
             executor.submit(() -> {
                 CompilationResult result = compileSubmission(student);
-                System.out.println(result.getCompilerOutput());
                 student.setCompilationResult(result);
             });
         }
@@ -114,10 +127,10 @@ public class SubmissionsWorker {
     private List<String> buildCompilerCommand(String studentId, Path submissionDir, List<File> sourceFiles)
     {
         List<String> command = new ArrayList<>();
-        command.add(config.getCompilerPath());
 
-        if(config.getCompilerCommand() != null && !config.getCompilerCommand().isEmpty())
-        {
+        if(config.getCompilerCommand() != null && !config.getCompilerPath().isEmpty()) {
+            command.add(config.getCompilerPath());
+        } else if(config.getCompilerCommand() != null && !config.getCompilerCommand().isEmpty()) {
             command.add(config.getCompilerCommand());
         }
 
@@ -134,9 +147,6 @@ public class SubmissionsWorker {
                 command.add(param);
             }
         }
-
-        System.out.println(command);
-
         return command;
     }
 
@@ -158,20 +168,18 @@ public class SubmissionsWorker {
             if(student.getCompilationResult() != null && student.getCompilationResult().isSuccess()) {
             executor.submit(() -> {
                 ExecutionResult result = executeSubmission(student);
-                System.out.println(result.getStdOutput());
-                System.out.println(result.getStdError());
                 student.setExecutionResult(result);
             });
-        } else {
-            ExecutionResult failedResult = new ExecutionResult(
+            } else {
+                ExecutionResult failedResult = new ExecutionResult(
                 1, 
                 "", 
                 "Execution skipped: Compilation failed or not attempted", 
-                Duration.ZERO
-            );
-            student.setExecutionResult(failedResult);
+                    Duration.ZERO
+                );
+                student.setExecutionResult(failedResult);
+            }
         }
-    }
 
         executor.shutdown();
         
@@ -266,6 +274,24 @@ public class SubmissionsWorker {
     }
 
     private List<String> buildExecutionCommand(String studentId, Path compileOutputDir) throws IOException {
+        boolean isInterpreted = (config.getCompilerCommand() == null || config.getCompilerCommand().isEmpty()) 
+            && (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
+        
+        if(isInterpreted) {
+
+            Path sourceFile = findSourceFile(compileOutputDir);
+            List<String> command = new ArrayList<>();
+
+            command.add(config.getCompilerPath());
+
+            if(!config.getRunParameters().isEmpty()) {
+                command.addAll(config.getRunParameters());
+            }
+
+            command.add(sourceFile.toString());
+            return command;
+        }
+
         String executableFileName = studentId + "_output" + config.getExecutableExtension();
         Path executablePath = compileOutputDir.resolve(executableFileName);
 
@@ -291,9 +317,16 @@ public class SubmissionsWorker {
             command.add(executablePath.toString());
         }
 
-        System.out.println(command);
-
         return command;
     }
 
+    private Path findSourceFile(Path submissionDir) throws IOException {
+    return Files.find(submissionDir, 1, 
+        (path, attrs) -> path.toString().endsWith(config.getSourceExtension())
+    ).findFirst().orElseThrow(() -> 
+        new IOException("No source file found with extension: " + config.getSourceExtension())
+    );
+}
+
+    
 }

@@ -2,6 +2,7 @@ package ce316project;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -15,13 +16,13 @@ public class Test {
     public static void main(String[] args) {
 
         List<Student> students = new ArrayList<>();
-        ZipExtractor zipExtractor = new ZipExtractor("C:\\Users\\Mert\\Desktop\\TestProjectCE316");
+        ZipExtractor zipExtractor = new ZipExtractor("C:\\Users\\Mert\\Desktop\\PythonTestCE316");
         Map<String,Path> studentEntries = zipExtractor.extractZipsConcurrently();
 
         for(Map.Entry<String,Path> entry : studentEntries.entrySet())
         {
-            //System.out.println("id"+entry.getKey());
-            //System.out.println("path"+entry.getValue());
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue().toString());
             Student student = new Student(
                 entry.getKey(), 
                 entry.getValue().toString()
@@ -33,15 +34,28 @@ public class Test {
             "C Config",
             ".exe",
             "C",
-            "",
+            "gcc",
             List.of("-o","{output}","{sources}"),
             "",
             List.of(),
-            "C:\\TDM-GCC-64\\bin\\gcc.exe",
+            "",
             ".c"
         );
 
-        SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, config);
+        Configuration pyConfig = new Configuration(
+            "PythonConfig",
+            ".py", // No executable extension
+            "Python",
+            null, // No compiler command
+            Collections.emptyList(), // No compiler parameters
+            "python", // Run command (not used)
+            List.of("-u"), // Run parameters (unbuffered output)
+            "python", // Interpreter path
+            ".py" // Source extension
+        );
+
+        SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, pyConfig);
+        
         submissionsWorker.compileSubmissions();
         submissionsWorker.executeSubmissions();
 
