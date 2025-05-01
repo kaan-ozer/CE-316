@@ -40,6 +40,7 @@ public class SubmissionsWorker {
         for(Student student : students) {
             executor.submit(() -> {
                 CompilationResult result = compileSubmission(student);
+                System.out.println(result.getCompilerOutput());
                 student.setCompilationResult(result);
             });
         }
@@ -127,7 +128,7 @@ public class SubmissionsWorker {
                 command.add(outputFileName);
             } 
             else if (param.equals("{sources}")) {
-                sourceFiles.forEach(f -> command.add(f.toString()));
+                sourceFiles.forEach(f -> command.add(f.getName()));
             } 
             else {
                 command.add(param);
@@ -154,11 +155,23 @@ public class SubmissionsWorker {
         );
 
         for (Student student : students) {
+            if(student.getCompilationResult() != null && student.getCompilationResult().isSuccess()) {
             executor.submit(() -> {
                 ExecutionResult result = executeSubmission(student);
+                System.out.println(result.getStdOutput());
+                System.out.println(result.getStdError());
                 student.setExecutionResult(result);
             });
+        } else {
+            ExecutionResult failedResult = new ExecutionResult(
+                1, 
+                "", 
+                "Execution skipped: Compilation failed or not attempted", 
+                Duration.ZERO
+            );
+            student.setExecutionResult(failedResult);
         }
+    }
 
         executor.shutdown();
         
@@ -181,11 +194,16 @@ public class SubmissionsWorker {
         Duration executionDuration;
 
         try {
-            Path submissionDir = Paths.get(student.getDirectoryPath());
-            List<String> command = buildExecutionCommand(student.getStudentId(), submissionDir);
+            CompilationResult compResult = student.getCompilationResult();
+            if (compResult == null || !compResult.isSuccess()) {
+                throw new IOException("Compilation failed or not attempted");
+            }
+            
+            Path executablePath = Paths.get(student.getDirectoryPath());
+            List<String> command = buildExecutionCommand(student.getStudentId(), executablePath);
 
             Process process = new ProcessBuilder()
-                .directory(submissionDir.toFile())
+                .directory(Paths.get(student.getDirectoryPath()).toFile())
                 .command(command)
                 .redirectErrorStream(false)
                 .start();

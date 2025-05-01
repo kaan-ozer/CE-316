@@ -20,8 +20,8 @@ public class Test {
 
         for(Map.Entry<String,Path> entry : studentEntries.entrySet())
         {
-            System.out.println("id"+entry.getKey());
-            System.out.println("path"+entry.getValue());
+            //System.out.println("id"+entry.getKey());
+            //System.out.println("path"+entry.getValue());
             Student student = new Student(
                 entry.getKey(), 
                 entry.getValue().toString()
@@ -33,7 +33,7 @@ public class Test {
             "C Config",
             ".exe",
             "C",
-            "gcc",
+            "",
             List.of("-o","{output}","{sources}"),
             "",
             List.of(),
@@ -42,12 +42,14 @@ public class Test {
         );
 
         SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, config);
-        //submissionsWorker.compileSubmissions();
+        submissionsWorker.compileSubmissions();
         submissionsWorker.executeSubmissions();
 
         for(int i=0; i<students.size(); i++)
         {
-            System.err.println(students.get(i).getExecutionResult());
+            System.out.println(students.get(i).getExecutionResult().getStdOutput());
+            System.out.println(students.get(i).getExecutionResult().getStdError());
+
         }
         
         
