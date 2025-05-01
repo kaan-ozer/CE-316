@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -27,7 +28,7 @@ public class CreateProjectPage extends VBox {
     private ComboBox<String> configSelector;
     private Button newConfigButton;
     private Button importConfigButton;
-    private TextField submissionZipField;
+    private TextField submissionDirectoryField;
     private Button browseZipButton;
     private TextField expectedOutputField;
     private Button browseOutputButton;
@@ -66,14 +67,14 @@ public class CreateProjectPage extends VBox {
         HBox configBox = new HBox(10, configSelector, newConfigButton, importConfigButton);
         configBox.setAlignment(Pos.CENTER);
 
-        submissionZipField = new TextField();
-        submissionZipField.setPromptText("Submission Zip File");
-        submissionZipField.setEditable(false);
+        submissionDirectoryField = new TextField();
+        submissionDirectoryField.setPromptText("Submission Zip File");
+        submissionDirectoryField.setEditable(false);
 
         browseZipButton = new Button("Browse");
-        browseZipButton.setOnAction(e -> selectSubmissionZip());
+        browseZipButton.setOnAction(e -> selectSubmissionDirectory());
 
-        HBox submissionBox = new HBox(10, submissionZipField, browseZipButton);
+        HBox submissionBox = new HBox(10, submissionDirectoryField, browseZipButton);
         submissionBox.setAlignment(Pos.CENTER);
 
         expectedOutputField = new TextField();
@@ -138,15 +139,15 @@ public class CreateProjectPage extends VBox {
         editStage.showAndWait();
     }
 
-    private void selectSubmissionZip() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Submission Zip File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("ZIP Files", "*.zip"));
-        File selectedFile = fileChooser.showOpenDialog(stageReference);
-        if (selectedFile != null) {
-            submissionZipField.setText(selectedFile.getAbsolutePath());
+    private void selectSubmissionDirectory() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select Submission Directory");
+        File selectedDirectory = directoryChooser.showDialog(stageReference);
+        if (selectedDirectory != null) {
+            submissionDirectoryField.setText(selectedDirectory.getAbsolutePath());
         }
     }
+
 
     private void selectExpectedOutput() {
         FileChooser fileChooser = new FileChooser();
@@ -213,7 +214,7 @@ public class CreateProjectPage extends VBox {
 
     private void generateProject() {
         String projectName = projectNameField.getText().trim();
-        String submissionZipPath = submissionZipField.getText().trim();
+        String submissionZipPath = submissionDirectoryField.getText().trim();
         String expectedOutputPath = expectedOutputField.getText().trim();
 
         StringBuilder missingFields = new StringBuilder();
@@ -273,7 +274,7 @@ public class CreateProjectPage extends VBox {
         projectNameField.clear();
         configSelector.setValue(null);
         selectedConfiguration = null;
-        submissionZipField.clear();
+        submissionDirectoryField.clear();
         expectedOutputField.clear();
     }
 }
