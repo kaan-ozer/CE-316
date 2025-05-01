@@ -195,7 +195,7 @@ public class CreateConfigurationPage extends VBox {
                 compilerParameters.isEmpty() ? Arrays.asList() : Arrays.asList(compilerParameters.split("\\s+")),
                 runCommand,
                 runParameters.isEmpty() ? Arrays.asList() : Arrays.asList(runParameters.split("\\s+")),
-                compilerPath
+                compilerPath,
                 sourceExtension
         );
 

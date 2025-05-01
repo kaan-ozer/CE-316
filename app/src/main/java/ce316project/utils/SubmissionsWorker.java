@@ -159,7 +159,6 @@ public class SubmissionsWorker {
 
     public void compareSubmissions(String referencePath) // NOT sure writing referencePath as a parameter is a good idea. Mert should check whether is suitable or not.
     {
-        //TODO read txt file from referencePath and compare with output of each student.
         StringBuilder result = new StringBuilder();
 
         try {
@@ -188,7 +187,7 @@ public class SubmissionsWorker {
 
     }
   
-    private ExecutionResult executeSubmission(Student student)
+    public void executeSubmissions()
     {
         ExecutorService executor = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors()
