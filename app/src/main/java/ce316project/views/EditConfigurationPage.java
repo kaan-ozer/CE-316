@@ -25,6 +25,7 @@ public class EditConfigurationPage extends VBox {
     private TextField configNameField;
     private TextField progLangField;
     private TextField executableExtensionField;
+    private TextField sourceExtensionField;
     private TextField compilerCommandField;
     private TextField compilerParametersField;
     private TextField runCommandField;
@@ -60,6 +61,9 @@ public class EditConfigurationPage extends VBox {
 
         executableExtensionField = new TextField();
         executableExtensionField.setPromptText("Executable Extension");
+
+        sourceExtensionField = new TextField();
+        sourceExtensionField.setPromptText("Source File Extension");
 
         compilerCommandField = new TextField();
         compilerCommandField.setPromptText("Compiler Command");
@@ -125,6 +129,7 @@ public class EditConfigurationPage extends VBox {
                 new Label("Configuration Name:"), configNameField,
                 new Label("Programming Language:"), progLangField,
                 new Label("Executable Extension:"), executableExtensionField,
+                new Label("Source File Extension"), sourceExtensionField,
                 new Label("Compiler Command:"), compilerCommandField,
                 new Label("Compiler Parameters (space separated):"), compilerParametersField,
                 new Label("Run Command:"), runCommandField,
@@ -162,6 +167,7 @@ public class EditConfigurationPage extends VBox {
             configNameField.setText(config.getConfigName());
             progLangField.setText(config.getLanguage());
             executableExtensionField.setText(config.getExecutableExtension());
+            sourceExtensionField.setText(config.getSourceExtension());
             compilerCommandField.setText(config.getCompilerCommand());
             compilerParametersField.setText(String.join(" ", config.getCompilerParameters()));
             runCommandField.setText(config.getRunCommand());
@@ -211,6 +217,7 @@ public class EditConfigurationPage extends VBox {
         String runCommand = runCommandField.getText().trim();
         String runParameters = runParametersField.getText().trim();
         String executableExtension = executableExtensionField.getText().trim();
+        String sourceFileExtension = sourceExtensionField.getText().trim();
 
         if (configName.isEmpty() || language.isEmpty() || runCommand.isEmpty()) {
             Alert error = new Alert(Alert.AlertType.ERROR);
@@ -261,7 +268,8 @@ public class EditConfigurationPage extends VBox {
                 compilerParameters.isEmpty() ? Arrays.asList() : Arrays.asList(compilerParameters.split("\\s+")),
                 runCommand,
                 runParameters.isEmpty() ? Arrays.asList() : Arrays.asList(runParameters.split("\\s+")),
-                compilerPath
+                compilerPath,
+                sourceFileExtension
         );
 
         Genson genson = new Genson();
