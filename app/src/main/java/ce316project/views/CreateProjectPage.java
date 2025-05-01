@@ -151,7 +151,7 @@ public class CreateProjectPage extends VBox {
     private void selectExpectedOutput() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Expected Output File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
         File selectedFile = fileChooser.showOpenDialog(stageReference);
         if (selectedFile != null) {
             expectedOutputField.setText(selectedFile.getAbsolutePath());
@@ -262,12 +262,8 @@ public class CreateProjectPage extends VBox {
         File projectFile = projectsDir.resolve(project.getProjectName() + ".json").toFile();
 
         try (FileWriter writer = new FileWriter(projectFile)) {
-            writer.write("{\n");
-            writer.write("  \"Project Name\": \"" + project.getProjectName() + "\",\n");
-            writer.write("  \"Configuration Name\": \"" + (project.getConfig() != null ? project.getConfig().getConfigName() : "") + "\",\n");
-            writer.write("  \"Zip File Path\": \"" + submissionZipField.getText().trim() + "\",\n");
-            writer.write("  \"Expected Output File Path\": \"" + project.getReferencePath() + "\"\n");
-            writer.write("}");
+            Genson genson = new Genson();
+            genson.serialize(project, writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
