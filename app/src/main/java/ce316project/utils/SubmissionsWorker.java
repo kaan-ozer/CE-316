@@ -43,6 +43,7 @@ public class SubmissionsWorker {
                      "Interpreted Language - no compilation required", 
                     Duration.ZERO
                 ));
+                student.setStatus(Status.READY);
             }
             return;
         }
@@ -55,6 +56,7 @@ public class SubmissionsWorker {
             executor.submit(() -> {
                 CompilationResult result = compileSubmission(student);
                 student.setCompilationResult(result);
+                student.setStatus(Status.READY);
             });
         }
 
@@ -75,6 +77,7 @@ public class SubmissionsWorker {
         boolean success = false;
         String output = "";
         String outputPath = "";
+        student.setStatus(Status.COMPILING);
 
         try {
             List<File> sourceFiles = Files.walk(submissionDir)
@@ -84,6 +87,7 @@ public class SubmissionsWorker {
                 .collect(Collectors.toList());
             
             if(sourceFiles.isEmpty()) {
+                student.setStatus(Status.ERROR);
                 return new CompilationResult(false, "No Source File Found", "", Duration.between(start, Instant.now()));
             }
 
@@ -113,6 +117,7 @@ public class SubmissionsWorker {
         } catch (IOException | InterruptedException e) {
             output = "Compilation failed: " + e.getMessage();
             success = false; // Status.ERROR
+            student.setStatus(Status.ERROR);
         }
 
         return new CompilationResult(
@@ -197,6 +202,7 @@ public class SubmissionsWorker {
             if(student.getCompilationResult() != null && student.getCompilationResult().isSuccess()) {
             executor.submit(() -> {
                 ExecutionResult result = executeSubmission(student);
+                student.setStatus(Status.COMPLETED);
                 student.setExecutionResult(result);
             });
             } else {
@@ -207,6 +213,7 @@ public class SubmissionsWorker {
                     Duration.ZERO
                 );
                 student.setExecutionResult(failedResult);
+                student.setStatus(Status.ERROR);
             }
         }
 
@@ -233,6 +240,7 @@ public class SubmissionsWorker {
         try {
             CompilationResult compResult = student.getCompilationResult();
             if (compResult == null || !compResult.isSuccess()) {
+                student.setStatus(Status.ERROR);
                 throw new IOException("Compilation failed or not attempted");
             }
             
@@ -258,6 +266,7 @@ public class SubmissionsWorker {
                         stdOutBuilder.append(line).append("\n");
                     }
                 } catch (IOException e) {
+                    student.setStatus(Status.ERROR);
                     stdErrBuilder.append("stdout read error: ").append(e.getMessage());
                 }
             });
@@ -269,6 +278,7 @@ public class SubmissionsWorker {
                         stdErrBuilder.append(line).append("\n");
                     }
                 } catch (IOException e) {
+                    student.setStatus(Status.ERROR);
                     stdErrBuilder.append("stdout read error: ").append(e.getMessage());
                 }
             });
@@ -292,6 +302,7 @@ public class SubmissionsWorker {
              
         } catch (IOException | InterruptedException e) {
             stdError = "Execution failed: "+ e.getMessage();
+            student.setStatus(Status.ERROR);
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
