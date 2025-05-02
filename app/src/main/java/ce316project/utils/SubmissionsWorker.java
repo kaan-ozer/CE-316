@@ -55,8 +55,14 @@ public class SubmissionsWorker {
         for(Student student : students) {
             executor.submit(() -> {
                 CompilationResult result = compileSubmission(student);
-                student.setCompilationResult(result);
-                student.setStatus(Status.READY);
+                synchronized (student) {
+                    student.setCompilationResult(result);
+                    if (result.isSuccess()) {
+                        student.setStatus(Status.READY);
+                    } else {
+                        student.setStatus(Status.ERROR);
+                    }
+                }
             });
         }
 
@@ -77,7 +83,10 @@ public class SubmissionsWorker {
         boolean success = false;
         String output = "";
         String outputPath = "";
-        student.setStatus(Status.COMPILING);
+
+        synchronized (student) {
+            student.setStatus(Status.COMPILING);
+        }
 
         try {
             List<File> sourceFiles = Files.walk(submissionDir)
@@ -87,7 +96,6 @@ public class SubmissionsWorker {
                 .collect(Collectors.toList());
             
             if(sourceFiles.isEmpty()) {
-                student.setStatus(Status.ERROR);
                 return new CompilationResult(false, "No Source File Found", "", Duration.between(start, Instant.now()));
             }
 
@@ -116,8 +124,7 @@ public class SubmissionsWorker {
 
         } catch (IOException | InterruptedException e) {
             output = "Compilation failed: " + e.getMessage();
-            success = false; // Status.ERROR
-            student.setStatus(Status.ERROR);
+            success = false;
         }
 
         return new CompilationResult(
@@ -171,22 +178,25 @@ public class SubmissionsWorker {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // Converting Ilker's file to string.
+        
         String fileContent = result.toString();
         System.out.println(fileContent);
 
         for (Student student : students ) {
-            if(student.getStatus() == Status.COMPLETED){
-                if(student.getExecutionResult().equals(fileContent)){
-                    student.setStatus(Status.PASSED);
+            synchronized (student) {
+                if(student.getStatus() == Status.COMPLETED){
+                    if(student.getExecutionResult().equals(fileContent)){
+                        student.setStatus(Status.PASSED);
+                    }
+                    else {
+                        student.setStatus(Status.FAILED);
+                    }
                 }
+            
                 else {
-                    student.setStatus(Status.FAILED);
+                    //Student Got broken codes so maybe status set to be failed in future.
+                    //student.setStatus(Status.FAILED);
                 }
-            }
-            else {
-                //Student Got broken codes so maybe status set to be failed in future.
-                //student.setStatus(Status.FAILED);
             }
         }
 
@@ -202,7 +212,6 @@ public class SubmissionsWorker {
             if(student.getCompilationResult() != null && student.getCompilationResult().isSuccess()) {
             executor.submit(() -> {
                 ExecutionResult result = executeSubmission(student);
-                student.setStatus(Status.COMPLETED);
                 student.setExecutionResult(result);
             });
             } else {
@@ -212,8 +221,10 @@ public class SubmissionsWorker {
                 "Execution skipped: Compilation failed or not attempted", 
                     Duration.ZERO
                 );
-                student.setExecutionResult(failedResult);
-                student.setStatus(Status.ERROR);
+                synchronized (student) {
+                    student.setExecutionResult(failedResult);
+                    student.setStatus(Status.ERROR);
+                }
             }
         }
 
@@ -236,6 +247,10 @@ public class SubmissionsWorker {
         String stdOut = "";
         String stdError = "";
         Duration executionDuration;
+
+        synchronized (student) {
+            student.setStatus(Status.EXECUTING);
+        }
 
         try {
             CompilationResult compResult = student.getCompilationResult();
@@ -310,7 +325,17 @@ public class SubmissionsWorker {
             executionDuration = Duration.between(start, Instant.now());
         }
 
-        return new ExecutionResult(exitCode, stdOut, stdError, executionDuration);
+        ExecutionResult result = new ExecutionResult(exitCode, stdOut, stdError, executionDuration);
+        synchronized (student) {
+            student.setExecutionResult(result);
+            if(result.getExitCode() == 0) {
+                student.setStatus(Status.COMPLETED);
+            } else {
+                student.setStatus(Status.ERROR);
+            }
+        }
+
+        return result;
     }
 
     private List<String> buildExecutionCommand(String studentId, Path compileOutputDir) throws IOException {
