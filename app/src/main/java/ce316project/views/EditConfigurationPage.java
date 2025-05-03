@@ -220,9 +220,9 @@ public class EditConfigurationPage extends VBox {
         String executableExtension = executableExtensionField.getText().trim();
         String sourceFileExtension = sourceExtensionField.getText().trim();
 
-        if (configName.isEmpty() || language.isEmpty() || runCommand.isEmpty()) {
+        if (configName.isEmpty() || language.isEmpty()) {
             Alert error = new Alert(Alert.AlertType.ERROR);
-            error.setHeaderText("Please fill required fields (Configuration Name, Programming Language, Run Command)!");
+            error.setHeaderText("Please fill required fields (Configuration Name, Programming Language)!");
             error.showAndWait();
             return;
         }
@@ -434,12 +434,6 @@ public class EditConfigurationPage extends VBox {
                 failedFields.append("Compiler Parameters\n");
             }
 
-            try {
-                runCommandField.setText(config.getRunCommand());
-            } catch (Exception e) {
-                runCommandField.clear();
-                failedFields.append("Run Command\n");
-            }
 
             try {
                 runParametersField.setText(String.join(" ", config.getRunParameters()));
