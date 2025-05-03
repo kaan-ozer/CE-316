@@ -9,22 +9,36 @@ import ce316project.utils.SubmissionsWorker;
 import ce316project.utils.ZipExtractor;
 
 public class Project {
-
     private String projectName;
     private Configuration config;
-    private List<Student> students; //TODO: this will be handled later.
-    private Report report; //  it is probably ''result outputs'' //TODO: this will be handled later.
-    private String referencePath; //  it is probably the reference of the ''expected outputs''
+    private List<Student> students;
+    private Report report;
+    private String submissionsPath;     // NEW
+    private String expectedOutputPath;   // NEW
     private Date creationDate;
-    
-    public Project(String projectId, String projectName, Configuration config, List<Student> students, Report report,
-            String referencePath) {
+
+    // no-arg ctor for Genson
+    public Project() {
+    }
+
+    // full‐args ctor
+    public Project(String projectName,
+                   Configuration config,
+                   List<Student> students,
+                   Report report,
+                   String submissionsPath,
+                   String expectedOutputPath) {
         this.projectName = projectName;
         this.config = config;
         this.students = students;
         this.report = report;
-        this.referencePath = referencePath;
+        this.submissionsPath = submissionsPath;
+        this.expectedOutputPath = expectedOutputPath;
     }
+
+
+
+
 
     public void prepareSubmissions(String submissionsDirectory)
     {
@@ -34,8 +48,8 @@ public class Project {
         for(Map.Entry<String,Path> entry : studentEntries.entrySet())
         {
             Student student = new Student(
-                entry.getKey(), 
-                entry.getValue().toString()
+                    entry.getKey(),
+                    entry.getValue().toString()
             );
             students.add(student);
         }
@@ -48,13 +62,22 @@ public class Project {
 
     }
 
-    public void runSubmissions(String submissionsDirectory)
-    {
-        SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, config);
-        submissionsWorker.executeSubmissions();
+    public void runSubmissions(String expectedOutputPath) {
+        SubmissionsWorker worker = new SubmissionsWorker(students, config);
+        worker.executeSubmissions();
+        worker.compareSubmissions(expectedOutputPath);
     }
 
-    
+
+    /**
+     * If you ever want to do compare separately:
+     */
+    public void compareSubmissions(String expectedOutputPath) {
+        SubmissionsWorker worker = new SubmissionsWorker(students, config);
+        worker.compareSubmissions(expectedOutputPath);
+    }
+
+
     public String getProjectName() {
         return projectName;
     }
@@ -87,14 +110,6 @@ public class Project {
         this.report = report;
     }
 
-    public String getReferencePath() {
-        return referencePath;
-    }
-
-    public void setReferencePath(String referencePath) {
-        this.referencePath = referencePath;
-    }
-
     public Date getCreationDate() {
         return creationDate;
     }
@@ -102,5 +117,10 @@ public class Project {
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
+
+    public String getSubmissionsPath()    { return submissionsPath; }
+    public void   setSubmissionsPath(String p)    { this.submissionsPath = p; }
+    public String getExpectedOutputPath() { return expectedOutputPath; }
+    public void   setExpectedOutputPath(String p) { this.expectedOutputPath = p; }
 
 }

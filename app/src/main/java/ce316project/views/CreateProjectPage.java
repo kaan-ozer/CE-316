@@ -2,6 +2,7 @@ package ce316project.views;
 
 import ce316project.entities.Configuration;
 import ce316project.entities.Project;
+import ce316project.entities.Report;
 import com.owlike.genson.Genson;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class CreateProjectPage extends VBox {
@@ -232,13 +234,14 @@ public class CreateProjectPage extends VBox {
             return;
         }
 
+        // In CreateProjectPage.java ⇒ generateProject()
         Project project = new Project(
-                null,
                 projectName,
                 selectedConfiguration,
-                null,
-                null,
-                expectedOutputPath
+                new ArrayList<>(),    // students
+                new Report(),         // report
+                submissionZipPath,    // submissions folder
+                expectedOutputPath    // expected output .txt
         );
 
         project.setCreationDate(new Date());
