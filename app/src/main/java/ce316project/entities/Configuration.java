@@ -56,39 +56,8 @@ public class Configuration {
         return compilerParameters;
     }
 
-    @JsonIgnore
-    public String getCompilerCommand() {
-        if (compilerParameters != null && !compilerParameters.isEmpty() && compilerParameters.get(0) != null) {
-            return compilerParameters.get(0);
-        }
-        return "";
-    }
-
-    @JsonIgnore
-    public List<String> getRemainingCompilerParameters() {
-        if (compilerParameters == null || compilerParameters.size() <= 1)
-            return Collections.emptyList();
-        return new ArrayList<>(compilerParameters.subList(1, compilerParameters.size()));
-    }
-
-
     public List<String> getRunParameters() {
         return runParameters;
-    }
-
-    @JsonIgnore
-    public String getRunCommand() {
-        if (runParameters != null && !runParameters.isEmpty() && runParameters.get(0) != null) {
-            return runParameters.get(0);
-        }
-        return "";
-    }
-
-    @JsonIgnore
-    public List<String> getRemainingRunParameters() {
-        if (runParameters == null || runParameters.size() <= 1)
-            return Collections.emptyList();
-        return new ArrayList<>(runParameters.subList(1, runParameters.size()));
     }
 
     public void setConfigName(String configId) {

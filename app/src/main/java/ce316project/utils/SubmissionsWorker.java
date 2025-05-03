@@ -33,8 +33,8 @@ public class SubmissionsWorker {
 
     public void compileSubmissions()
     {
-        boolean isInterpreted = (config.getCompilerCommand() == null || config.getCompilerCommand().isEmpty())
-        && (config.getRemainingCompilerParameters() == null || config.getRemainingCompilerParameters().isEmpty());
+        boolean isInterpreted = (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty())
+        && (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
 
         if(isInterpreted) {
             for(Student student : students) {
@@ -143,15 +143,10 @@ public class SubmissionsWorker {
     {
         List<String> command = new ArrayList<>();
 
-        if(config.getCompilerCommand() != null && !config.getCompilerPath().isEmpty()) {
-            command.add(config.getCompilerPath());
-        } else if(config.getCompilerCommand() != null && !config.getCompilerCommand().isEmpty()) {
-            command.add(config.getCompilerCommand());
-        }
-
         String outputFileName = studentId + "_output";
 
-        for (String param : config.getRemainingCompilerParameters()) {
+        for (String param : config.getCompilerParameters()) {
+            System.out.println(param);
             if (param.equals("{output}")) {
                 command.add(outputFileName);
             } 
@@ -161,7 +156,13 @@ public class SubmissionsWorker {
             else {
                 command.add(param);
             }
-        }
+        } 
+
+        if(config.getCompilerPath() != null && !config.getCompilerPath().isEmpty() && !config.getCompilerPath().equals("")) {
+            System.out.println("Enter");
+            command.set(0,config.getCompilerPath());
+        } 
+
         return command;
     }
 
@@ -357,15 +358,21 @@ public class SubmissionsWorker {
     private List<String> buildExecutionCommand(Path compileOutputDir) throws IOException {
         List<String> command = new ArrayList<>();
 
-        boolean isInterpreted = (config.getCompilerCommand() == null || config.getCompilerCommand().isEmpty())
-                && (config.getRemainingCompilerParameters() == null || config.getRemainingCompilerParameters().isEmpty());
+        boolean isInterpreted = (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
 
         if (isInterpreted) {
             Path sourceFile = findSourceFile(compileOutputDir);
-            command.add(config.getCompilerPath());
-            if (!config.getRemainingRunParameters().isEmpty()) {
-                command.addAll(config.getRemainingRunParameters());
+            
+            System.out.println("Compiler Path"+config.getCompilerPath());
+
+            if (!config.getRunParameters().isEmpty()) {
+                command.addAll(config.getRunParameters());
             }
+
+            if(config.getCompilerPath() != null && !config.getCompilerPath().isEmpty() && !config.getCompilerPath().equals("")) {
+                command.set(0,config.getCompilerPath());
+            } 
+
             command.add(sourceFile.toString());
             System.out.println("[execute] Interpreted command: " + String.join(" ", command));
             return command;
@@ -383,29 +390,23 @@ public class SubmissionsWorker {
 
         Path executablePath = candidateFiles.get(0);
 
-        command.add(config.getRunCommand().trim());
-
-        if (config.getRunCommand().trim().isBlank()) {
-                command.remove(0);
-        } else {
-            for (String param : config.getRemainingRunParameters()) {
+        for (String param : config.getRunParameters()) {
                 String processed = param
                         .replace("{Output}", executablePath.getFileName().toString().replace(ext, ""))
                         .replace("{output}", executablePath.getFileName().toString().replace(ext, ""))
+                        .replace("{outputfull}", executablePath.toAbsolutePath().toString())
                         .replace("{OutputFull}", executablePath.toAbsolutePath().toString());
                 command.add(processed);
-            }
         }
+        
 
         if (command.isEmpty()) {
             command.add(executablePath.toAbsolutePath().toString());
         }
         
-        System.out.println();
+        System.out.println("Run Command"+command);
         return command;
     }
-
-
 
     private Path findSourceFile(Path submissionDir) throws IOException {
     return Files.find(submissionDir, 1, 
