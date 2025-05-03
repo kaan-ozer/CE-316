@@ -27,9 +27,7 @@ public class EditConfigurationPage extends VBox {
     private TextField progLangField;
     private TextField executableExtensionField;
     private TextField sourceExtensionField;
-    private TextField compilerCommandField;
     private TextField compilerParametersField;
-    private TextField runCommandField;
     private TextField runParametersField;
     private CheckBox compilerInstalledCheckBox;
     private TextField compilerPathField;
@@ -66,14 +64,8 @@ public class EditConfigurationPage extends VBox {
         sourceExtensionField = new TextField();
         sourceExtensionField.setPromptText("Source File Extension");
 
-        compilerCommandField = new TextField();
-        compilerCommandField.setPromptText("Compiler Command");
-
         compilerParametersField = new TextField();
         compilerParametersField.setPromptText("Compiler Parameters");
-
-        runCommandField = new TextField();
-        runCommandField.setPromptText("Run Command");
 
         runParametersField = new TextField();
         runParametersField.setPromptText("Run Parameters");
@@ -131,9 +123,7 @@ public class EditConfigurationPage extends VBox {
                 new Label("Programming Language:"), progLangField,
                 new Label("Executable Extension:"), executableExtensionField,
                 new Label("Source File Extension"), sourceExtensionField,
-                new Label("Compiler Command:"), compilerCommandField,
                 new Label("Compiler Parameters (space separated):"), compilerParametersField,
-                new Label("Run Command:"), runCommandField,
                 new Label("Run Parameters (space separated):"), runParametersField,
                 compilerInstalledCheckBox,
                 compilerPathBox,
@@ -169,9 +159,7 @@ public class EditConfigurationPage extends VBox {
             progLangField.setText(config.getLanguage());
             executableExtensionField.setText(config.getExecutableExtension());
             sourceExtensionField.setText(config.getSourceExtension());
-            compilerCommandField.setText(config.getCompilerCommand());
             compilerParametersField.setText(String.join(" ", config.getCompilerParameters()));
-            runCommandField.setText(config.getRunCommand());
             runParametersField.setText(String.join(" ", config.getRunParameters()));
 
             if (config.getCompilerPath() == null || config.getCompilerPath().isEmpty()) {
@@ -213,9 +201,7 @@ public class EditConfigurationPage extends VBox {
 
         String configName = configNameField.getText().trim();
         String language = progLangField.getText().trim();
-        String compilerCommand = compilerCommandField.getText().trim();
         String compilerParameters = compilerParametersField.getText().trim();
-        String runCommand = runCommandField.getText().trim();
         String runParameters = runParametersField.getText().trim();
         String executableExtension = executableExtensionField.getText().trim();
         String sourceFileExtension = sourceExtensionField.getText().trim();
@@ -265,9 +251,7 @@ public class EditConfigurationPage extends VBox {
                 configName,
                 executableExtension,
                 language,
-                compilerCommand,
                 compilerParameters.isEmpty() ? Arrays.asList() : Arrays.asList(compilerParameters.split("\\s+")),
-                runCommand,
                 runParameters.isEmpty() ? Arrays.asList() : Arrays.asList(runParameters.split("\\s+")),
                 compilerPath,
                 sourceFileExtension
@@ -421,13 +405,6 @@ public class EditConfigurationPage extends VBox {
             }
 
             try {
-                compilerCommandField.setText(config.getCompilerCommand());
-            } catch (Exception e) {
-                compilerCommandField.clear();
-                failedFields.append("Compiler Command\n");
-            }
-
-            try {
                 compilerParametersField.setText(String.join(" ", config.getCompilerParameters()));
             } catch (Exception e) {
                 compilerParametersField.clear();
@@ -543,9 +520,7 @@ public class EditConfigurationPage extends VBox {
         configNameField.clear();
         progLangField.clear();
         executableExtensionField.clear();
-        compilerCommandField.clear();
         compilerParametersField.clear();
-        runCommandField.clear();
         runParametersField.clear();
         compilerInstalledCheckBox.setSelected(true);
         compilerPathField.clear();

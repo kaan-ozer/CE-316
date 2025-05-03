@@ -49,17 +49,9 @@ public class CreateConfigurationPage extends VBox {
         TextField sourceExtensionField = new TextField();
         sourceExtensionField.setPromptText("e.g., .c or .java");
 
-        Label compilerCommandLabel = new Label("Compiler Command:");
-        TextField compilerCommandField = new TextField();
-        compilerCommandField.setPromptText("e.g., gcc");
-
         Label compilerParamsLabel = new Label("Compiler Parameters (separate by space):");
         TextField compilerParamsField = new TextField();
         compilerParamsField.setPromptText("e.g., -o outputFile");
-
-        Label runCommandLabel = new Label("Run Command:");
-        TextField runCommandField = new TextField();
-        runCommandField.setPromptText("e.g., ./outputFile");
 
         Label runParamsLabel = new Label("Run Parameters (separate by space):");
         TextField runParamsField = new TextField();
@@ -97,7 +89,7 @@ public class CreateConfigurationPage extends VBox {
 
         generateButton.setOnAction(e -> {
             try {
-                saveConfiguration(configNameField, progLangField, compilerCommandField, compilerParamsField, runCommandField, runParamsField, executableExtensionField, sourceExtensionField);
+                saveConfiguration(configNameField, progLangField, compilerParamsField, runParamsField, executableExtensionField, sourceExtensionField);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -108,9 +100,7 @@ public class CreateConfigurationPage extends VBox {
                 progLangLabel, progLangField,
                 executableExtensionLabel, executableExtensionField,
                 sourceExtensionLabel, sourceExtensionField,
-                compilerCommandLabel, compilerCommandField,
                 compilerParamsLabel, compilerParamsField,
-                runCommandLabel, runCommandField,
                 runParamsLabel, runParamsField,
                 compilerInstalledCheckBox,
                 compilerPathBox,
@@ -129,15 +119,13 @@ public class CreateConfigurationPage extends VBox {
         }
     }
 
-    private void saveConfiguration(TextField configNameField, TextField progLangField, TextField compilerCommandField,
-                                   TextField compilerParamsField, TextField runCommandField, TextField runParamsField,
+    private void saveConfiguration(TextField configNameField, TextField progLangField,
+                                   TextField compilerParamsField, TextField runParamsField,
                                    TextField executableExtensionField, TextField sourceExtensionField) throws IOException {
 
         String configName = configNameField.getText().trim();
         String language = progLangField.getText().trim().toLowerCase();
-        String compilerCommand = compilerCommandField.getText().trim();
         String compilerParameters = compilerParamsField.getText().trim();
-        String runCommand = runCommandField.getText().trim();
         String runParameters = runParamsField.getText().trim();
         String executableExtension = executableExtensionField.getText().trim();
         String sourceExtension = sourceExtensionField.getText().trim();
@@ -153,7 +141,6 @@ public class CreateConfigurationPage extends VBox {
         boolean needsCompiler = language.equals("c") || language.equals("c++") || language.equals("cpp") || language.equals("java");
 
         if (needsCompiler) {
-            if (compilerCommand.isEmpty()) missingFields.append("- Compiler Command\n");
             if (!compilerInstalledCheckBox.isSelected() && compilerPath.isEmpty()) {
                 missingFields.append("- Compiler Path (since compiler is not installed)\n");
             }
@@ -187,9 +174,7 @@ public class CreateConfigurationPage extends VBox {
                 configName,
                 executableExtension,
                 language,
-                compilerCommand,
                 compilerParameters.isEmpty() ? Arrays.asList() : Arrays.asList(compilerParameters.split("\\s+")),
-                runCommand,
                 runParameters.isEmpty() ? Arrays.asList() : Arrays.asList(runParameters.split("\\s+")),
                 compilerPath,
                 sourceExtension
@@ -200,6 +185,7 @@ public class CreateConfigurationPage extends VBox {
 
         try (FileWriter writer = new FileWriter(outputFile)) {
             writer.write(json);
+            writer.flush();
         }
 
         if (onSaveCallback != null) {

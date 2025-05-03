@@ -34,7 +34,7 @@ public class SubmissionsWorker {
     public void compileSubmissions()
     {
         boolean isInterpreted = (config.getCompilerCommand() == null || config.getCompilerCommand().isEmpty())
-        && (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
+        && (config.getRemainingCompilerParameters() == null || config.getRemainingCompilerParameters().isEmpty());
 
         if(isInterpreted) {
             for(Student student : students) {
@@ -151,7 +151,7 @@ public class SubmissionsWorker {
 
         String outputFileName = studentId + "_output";
 
-        for (String param : config.getCompilerParameters()) {
+        for (String param : config.getRemainingCompilerParameters()) {
             if (param.equals("{output}")) {
                 command.add(outputFileName);
             } 
@@ -358,13 +358,13 @@ public class SubmissionsWorker {
         List<String> command = new ArrayList<>();
 
         boolean isInterpreted = (config.getCompilerCommand() == null || config.getCompilerCommand().isEmpty())
-                && (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
+                && (config.getRemainingCompilerParameters() == null || config.getRemainingCompilerParameters().isEmpty());
 
         if (isInterpreted) {
             Path sourceFile = findSourceFile(compileOutputDir);
             command.add(config.getCompilerPath());
-            if (!config.getRunParameters().isEmpty()) {
-                command.addAll(config.getRunParameters());
+            if (!config.getRemainingRunParameters().isEmpty()) {
+                command.addAll(config.getRemainingRunParameters());
             }
             command.add(sourceFile.toString());
             System.out.println("[execute] Interpreted command: " + String.join(" ", command));
@@ -388,7 +388,7 @@ public class SubmissionsWorker {
         if (config.getRunCommand().trim().isBlank()) {
                 command.remove(0);
         } else {
-            for (String param : config.getRunParameters()) {
+            for (String param : config.getRemainingRunParameters()) {
                 String processed = param
                         .replace("{Output}", executablePath.getFileName().toString().replace(ext, ""))
                         .replace("{output}", executablePath.getFileName().toString().replace(ext, ""))
