@@ -70,7 +70,7 @@ public class CreateProjectPage extends VBox {
         configBox.setAlignment(Pos.CENTER);
 
         submissionDirectoryField = new TextField();
-        submissionDirectoryField.setPromptText("Submission Zip File");
+        submissionDirectoryField.setPromptText("Submission Directory");
         submissionDirectoryField.setEditable(false);
 
         browseZipButton = new Button("Browse");

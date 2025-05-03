@@ -30,6 +30,7 @@ public class MainPage extends VBox {
     private Button runButton = createIconButton("RUN", "icons/run.png");
     private Button showResultsButton = createIconButton("Show Results", "icons/results.png");
     private Button deleteProjectButton = createIconButton("Delete Project", "icons/delete.png");
+
     private TableView<Student> resultTable = new TableView<>();
 
     private Project currentProject;
@@ -76,6 +77,7 @@ public class MainPage extends VBox {
         runButton.setDisable(true);
         showResultsButton.setDisable(true);
         HBox actions = new HBox(20, runButton, showResultsButton, deleteProjectButton);
+
         actions.setAlignment(Pos.CENTER);
         actions.setPadding(new Insets(15));
         actions.setStyle("-fx-background-color: #2F3136;");
