@@ -2,6 +2,7 @@ package ce316project.views;
 
 
 import ce316project.entities.Configuration;
+import ce316project.entities.Project;
 import com.owlike.genson.Genson;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -277,9 +278,12 @@ public class EditConfigurationPage extends VBox {
 
         try (FileWriter writer = new FileWriter(newFile)) {
             writer.write(json);
+            writer.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        updateProjectsUsingThisConfiguration(updatedConfig, selectedConfig);
 
         configSelector.setValue(configName);
         loadConfiguration(configName);
@@ -288,6 +292,36 @@ public class EditConfigurationPage extends VBox {
         success.setHeaderText("Configuration updated successfully!");
         success.showAndWait();
     }
+
+    private void updateProjectsUsingThisConfiguration(Configuration updatedConfig, String oldConfigName) {
+        Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+        File[] projectFiles = projectsDir.toFile().listFiles((dir, name) -> name.endsWith(".json"));
+
+        if (projectFiles == null) return;
+
+        Genson genson = new Genson();
+
+        for (File projectFile : projectFiles) {
+            try (FileReader reader = new FileReader(projectFile)) {
+                Project project = genson.deserialize(reader, Project.class);
+
+                // Burada hem eski ismi hem de yeni ismi kontrol ediyoruz
+                String currentProjectConfigName = project.getConfig().getConfigName();
+
+                if (currentProjectConfigName.equals(oldConfigName) || currentProjectConfigName.equals(updatedConfig.getConfigName())) {
+                    project.setConfig(updatedConfig); // yeni config ile değiştir
+
+                    try (FileWriter writer = new FileWriter(projectFile)) {
+                        genson.serialize(project, writer); // güncellenmiş projeyi yaz
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 
     private void deleteSelectedConfiguration() {
         String selectedConfig = configSelector.getValue();
