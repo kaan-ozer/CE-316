@@ -362,7 +362,15 @@ public class SubmissionsWorker {
 
         if (isInterpreted) {
             Path sourceFile = findSourceFile(compileOutputDir);
-            command.add(config.getCompilerPath());
+            
+            System.out.println("Compiler Path"+config.getCompilerPath());
+
+            if(config.getCompilerPath().isEmpty()){
+                command.add(config.getRunCommand().trim());
+            } else {
+                command.add(config.getCompilerPath());
+            }
+
             if (!config.getRemainingRunParameters().isEmpty()) {
                 command.addAll(config.getRemainingRunParameters());
             }
@@ -392,6 +400,7 @@ public class SubmissionsWorker {
                 String processed = param
                         .replace("{Output}", executablePath.getFileName().toString().replace(ext, ""))
                         .replace("{output}", executablePath.getFileName().toString().replace(ext, ""))
+                        .replace("{outputfull}", executablePath.toAbsolutePath().toString())
                         .replace("{OutputFull}", executablePath.toAbsolutePath().toString());
                 command.add(processed);
             }
@@ -404,8 +413,6 @@ public class SubmissionsWorker {
         System.out.println();
         return command;
     }
-
-
 
     private Path findSourceFile(Path submissionDir) throws IOException {
     return Files.find(submissionDir, 1, 
