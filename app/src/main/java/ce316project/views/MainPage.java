@@ -1,15 +1,30 @@
 package ce316project.views;
 
 import ce316project.controller.PageController;
+import ce316project.entities.Project;
+import ce316project.entities.Student;
+import com.owlike.genson.Genson;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainPage extends VBox {
 
@@ -19,12 +34,14 @@ public class MainPage extends VBox {
     private Button runButton = createIconButton("RUN", "icons/run.png");
     private Button showResultsButton = createIconButton("Show Results", "icons/results.png");
     private Button zipConvertButton = createIconButton("Convert to ZIP file", "icons/zip.png");
-    private TableView<String> resultTable = new TableView<>();
+    private TableView<Student> resultTable = new TableView<>();
+
+    private Project currentProject;
 
     public MainPage(Stage primaryStage) {
         menuBar = new AppMenuBar(primaryStage);
 
-        // Title area
+        // Header
         VBox header = new VBox(5);
         Label title = new Label("Integrated Assignment Environment");
         title.setFont(Font.font("Arial", 20));
@@ -36,16 +53,18 @@ public class MainPage extends VBox {
         header.setAlignment(Pos.CENTER);
         header.setPadding(new Insets(15));
 
-        // Top control panel
+        // Project selector and refresh
         Label selectLabel = new Label("Select Project:");
         selectLabel.setStyle("-fx-text-fill: #CCCCCC;");
         HBox controlPanel = new HBox(10, selectLabel, projectSelector, refreshButton);
         controlPanel.setAlignment(Pos.CENTER_LEFT);
         controlPanel.setPadding(new Insets(10));
 
-        // Table setup
-        TableColumn<String, String> studentCol = new TableColumn<>("Student ID");
-        TableColumn<String, String> resultCol = new TableColumn<>("Result");
+        // Table columns
+        TableColumn<Student, String> studentCol = new TableColumn<>("Student ID");
+        studentCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStudentId()));
+        TableColumn<Student, String> resultCol = new TableColumn<>("Result");
+        resultCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
         resultTable.getColumns().addAll(studentCol, resultCol);
         resultTable.setPlaceholder(new Label("No submissions yet."));
         resultTable.setPrefHeight(250);
@@ -63,18 +82,74 @@ public class MainPage extends VBox {
         footer.setPadding(new Insets(10));
         footer.setAlignment(Pos.CENTER);
 
-        // Main layout
+        // Layout assembly
         VBox mainLayout = new VBox(10, controlPanel, resultTable, actions, footer);
         mainLayout.setAlignment(Pos.TOP_CENTER);
         mainLayout.setPadding(new Insets(10));
         mainLayout.setStyle("-fx-background-color: #1E1F22; -fx-text-fill: white;");
-
         this.getChildren().addAll(menuBar, header, mainLayout);
         this.setStyle("-fx-background-color: #0F0F10;");
 
-        if (!PageController.pagesArray.isEmpty()) {
-            PageController.pagesArray.add(PageController.pagesArray.size(), PageController.pagesArray.get(PageController.pagesArray.size() - 1));
+        // Load and refresh projects
+        loadProjects();
+        refreshButton.setOnAction(e -> loadProjects());
+        projectSelector.setOnAction(e -> loadProject(projectSelector.getValue()));
+
+
+        runButton.setOnAction(e -> {
+            if (currentProject != null) {
+                currentProject.compileSubmissions();
+                currentProject.runSubmissions(currentProject.getSubmissionsPath());
+                currentProject.compareSubmissions(currentProject.getExpectedOutputPath());
+                showAlert("Run Complete", "Execution completed for project: " + currentProject.getProjectName());
+            } else {
+                showAlert("No Project Selected", "Please select a project first.");
+            }
+        });
+
+        showResultsButton.setOnAction(e -> {
+            if (currentProject != null && currentProject.getStudents() != null) {
+                resultTable.getItems().setAll(currentProject.getStudents());
+            } else {
+                showAlert("No Results", "No execution data available. Run the project first.");
+            }
+        });
+    }
+
+    private void loadProjects() {
+        projectSelector.getItems().clear();
+        Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+        if (Files.exists(projectsDir)) {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(projectsDir, "*.json")) {
+                for (Path p : stream) {
+                    projectSelector.getItems().add(p.getFileName().toString().replace(".json", ""));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    private void loadProject(String projectName) {
+        try {
+            Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+            File projectFile = projectsDir.resolve(projectName + ".json").toFile();
+            Genson genson = new Genson();
+            currentProject = genson.deserialize(new FileReader(projectFile), Project.class);
+            // Initialize student list and unzip submissions
+            currentProject.setStudents(new ArrayList<>());
+            currentProject.prepareSubmissions(currentProject.getSubmissionsPath());
+        } catch (IOException e) {
+            showAlert("Error Loading Project", e.getMessage());
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     private Button createIconButton(String text, String iconPath) {
