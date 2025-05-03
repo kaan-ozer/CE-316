@@ -40,10 +40,38 @@ java {
 
 javafx {
     version = "21"
-    modules = [ 'javafx.controls' ]
+    modules = [ 'javafx.controls', 'javafx.web' ]
 }
 
 application {
     // Define the main class for the application.
     mainClass = 'ce316project.App'
 }
+
+// Make sure resources are included in the build
+processResources {
+    // If resources don't exist yet, print a warning but don't fail the build
+    doFirst {
+        def resourcesDir = file("$projectDir/src/main/resources")
+        if (!resourcesDir.exists()) {
+            logger.warn("Resources directory does not exist: $resourcesDir")
+            resourcesDir.mkdirs()
+        }
+    }
+}
+
+// This task verifies our user guide HTML is properly setup
+task verifyUserGuide {
+    doLast {
+        def userGuideFile = file("$projectDir/src/main/resources/UserGuide.html")
+        if (!userGuideFile.exists()) {
+            logger.warn("User Guide file not found: $userGuideFile")
+            logger.warn("The application will fall back to basic view.")
+        } else {
+            logger.lifecycle("User Guide file found: $userGuideFile")
+        }
+    }
+}
+
+// Run the verification before the build
+classes.dependsOn verifyUserGuide

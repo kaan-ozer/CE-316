@@ -33,6 +33,8 @@ public class AppMenuBar extends MenuBar {
         mNewConfig.setOnAction(e -> openCreateConfigurationPage(primaryStage));
         mOpenConfig.setOnAction(e -> openEditConfigurationPage(primaryStage));
         mNewProject.setOnAction(e -> openCreateProjectPage(primaryStage));
+        mUserGuide.setOnAction(e -> openUserGuidePage(primaryStage));
+        mQuit.setOnAction(e -> primaryStage.close());
 
         projectMenu.getItems().addAll(mNewProject, new SeparatorMenuItem(), mQuit);
         configMenu.getItems().addAll(mNewConfig, mOpenConfig, new SeparatorMenuItem());
@@ -68,6 +70,25 @@ public class AppMenuBar extends MenuBar {
         popupStage.setTitle("Create New Configuration");
         popupStage.initOwner(primaryStage);
         popupStage.setScene(new Scene(createProjectPage, 500, 500));
+        popupStage.show();
+    }
+    
+    private void openUserGuidePage(Stage primaryStage) {
+        Stage popupStage = new Stage();
+        popupStage.setTitle("User Guide");
+        popupStage.initOwner(primaryStage);
+        
+        try {
+            // Try to use WebView-based guide first
+            Class.forName("javafx.scene.web.WebView");
+            UserGuideView userGuideView = new UserGuideView();
+            popupStage.setScene(new Scene(userGuideView, 950, 750));
+        } catch (Exception e) {
+            // Fall back to basic guide if WebView is not available
+            BasicUserGuideView basicUserGuideView = new BasicUserGuideView();
+            popupStage.setScene(new Scene(basicUserGuideView, 950, 750));
+        }
+        
         popupStage.show();
     }
 }
