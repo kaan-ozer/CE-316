@@ -89,6 +89,7 @@ public class SubmissionsWorker {
         }
 
         try {
+            System.out.println("[compile] Scanning for source files in: " + submissionDir.toAbsolutePath());
             List<File> sourceFiles = Files.walk(submissionDir)
                 .filter(Files::isRegularFile)
                 .map(Path::toFile)
@@ -96,10 +97,12 @@ public class SubmissionsWorker {
                 .collect(Collectors.toList());
             
             if(sourceFiles.isEmpty()) {
+                System.out.println("[compile] ❌ No source files found!");
                 return new CompilationResult(false, "No Source File Found", "", Duration.between(start, Instant.now()));
             }
 
             List<String> command = buildCompilerCommand(student.getStudentId(),submissionDir, sourceFiles);
+            System.out.println("[compile] Compiler command: " + String.join(" ", command));
 
             Process process = new ProcessBuilder()
                 .directory(submissionDir.toFile())
@@ -114,6 +117,7 @@ public class SubmissionsWorker {
                 outputBuilder.append(line).append("\n");
             }
             output = outputBuilder.toString().trim();
+            System.out.println("[compile] Output: " + output);
 
             int exitCode = process.waitFor();
             success = exitCode == 0;
@@ -271,7 +275,7 @@ public class SubmissionsWorker {
             }
             
             Path executablePath = Paths.get(student.getDirectoryPath());
-            List<String> command = buildExecutionCommand(student.getStudentId(), executablePath);
+            List<String> command = buildExecutionCommand(executablePath);
 
             Process process = new ProcessBuilder()
                 .directory(Paths.get(student.getDirectoryPath()).toFile())
@@ -350,52 +354,62 @@ public class SubmissionsWorker {
         return result;
     }
 
-    private List<String> buildExecutionCommand(String studentId, Path compileOutputDir) throws IOException {
-        boolean isInterpreted = (config.getCompilerCommand() == null || config.getCompilerCommand().isEmpty()) 
-            && (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
-        
-        if(isInterpreted) {
+    private List<String> buildExecutionCommand(Path compileOutputDir) throws IOException {
+        List<String> command = new ArrayList<>();
 
+        boolean isInterpreted = (config.getCompilerCommand() == null || config.getCompilerCommand().isEmpty())
+                && (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
+
+        if (isInterpreted) {
             Path sourceFile = findSourceFile(compileOutputDir);
-            List<String> command = new ArrayList<>();
-
             command.add(config.getCompilerPath());
-
-            if(!config.getRunParameters().isEmpty()) {
+            if (!config.getRunParameters().isEmpty()) {
                 command.addAll(config.getRunParameters());
             }
-
             command.add(sourceFile.toString());
+            System.out.println("[execute] Interpreted command: " + String.join(" ", command));
             return command;
         }
 
-        String executableFileName = studentId + "_output" + config.getExecutableExtension();
-        Path executablePath = compileOutputDir.resolve(executableFileName);
 
-        if(!Files.exists(executablePath)) {
-            throw new IOException("Compile output not found: " + executablePath);
+        String ext = config.getExecutableExtension();
+
+
+        List<Path> candidateFiles = Files.list(compileOutputDir)
+                .filter(p -> p.toString().endsWith(ext))
+                .collect(Collectors.toList());
+
+        if (candidateFiles.isEmpty()) {
+            throw new IOException("No executable file with extension " + ext + " found in " + compileOutputDir);
         }
 
-        String outputBase = executableFileName.replace(config.getExecutableExtension(), "");
-        List<String> command = new ArrayList<>();
+        Path executablePath = candidateFiles.get(0);
 
-        if(config.getRunParameters().isEmpty()) {
-            command.add(executablePath.toString());
+        if (ext.equals(".class")) {
+            String className = executablePath.getFileName().toString().replace(".class", "");
+            command.add("java");
+            command.add(className);
         } else {
-            for(String param : config.getRunParameters()) {
-                String processedParam = param
-                    .replace("{Output}", outputBase) // If param equals to target it replace else it directly pass it.
-                    .replace("{OutputFull}", executablePath.toString());
-                command.add(processedParam);
+            if (config.getRunParameters().isEmpty()) {
+                command.add(executablePath.toAbsolutePath().toString());
+            } else {
+                for (String param : config.getRunParameters()) {
+                    String processed = param
+                            .replace("{Output}", executablePath.getFileName().toString().replace(ext, ""))
+                            .replace("{OutputFull}", executablePath.toAbsolutePath().toString());
+                    command.add(processed);
+                }
             }
-        }
 
-        if (command.isEmpty()) {
-            command.add(executablePath.toString());
+            if (command.isEmpty()) {
+                command.add(executablePath.toAbsolutePath().toString());
+            }
         }
 
         return command;
     }
+
+
 
     private Path findSourceFile(Path submissionDir) throws IOException {
     return Files.find(submissionDir, 1, 
