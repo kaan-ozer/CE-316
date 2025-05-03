@@ -24,7 +24,6 @@ public class CreateConfigurationPage extends VBox {
     private Button selectCompilerButton;
     private Runnable onSaveCallback;
 
-    //TODO: validations must be reviewed
     public CreateConfigurationPage(Stage stageReference, Runnable onSaveCallback) {
         this.stageReference = stageReference;
         this.onSaveCallback = onSaveCallback;
@@ -146,10 +145,8 @@ public class CreateConfigurationPage extends VBox {
 
         StringBuilder missingFields = new StringBuilder();
 
-
         if (configName.isEmpty()) missingFields.append("- Configuration Name\n");
         if (language.isEmpty()) missingFields.append("- Programming Language\n");
-        if (runCommand.isEmpty()) missingFields.append("- Run Command\n");
         if (executableExtension.isEmpty()) missingFields.append("- Executable File Extension\n");
         if (sourceExtension.isEmpty()) missingFields.append("- Source File Extension\n");
 
@@ -163,7 +160,6 @@ public class CreateConfigurationPage extends VBox {
         }
 
         if (missingFields.length() > 0) {
-          
             Alert error = new Alert(Alert.AlertType.ERROR);
             error.setHeaderText("Please fill the following required field(s):");
             error.setContentText(missingFields.toString());
@@ -215,5 +211,4 @@ public class CreateConfigurationPage extends VBox {
         success.setContentText("Saved at: " + outputFile.getAbsolutePath());
         success.showAndWait();
     }
-
 }

@@ -29,6 +29,8 @@ public class MainPage extends VBox {
     private Button refreshButton = createIconButton("Refresh", "icons/refresh.png");
     private Button runButton = createIconButton("RUN", "icons/run.png");
     private Button showResultsButton = createIconButton("Show Results", "icons/results.png");
+    private Button deleteProjectButton = createIconButton("Delete Project", "icons/delete.png");
+
     private TableView<Student> resultTable = new TableView<>();
 
     private Project currentProject;
@@ -55,11 +57,7 @@ public class MainPage extends VBox {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("-- Select a project --");
-                } else {
-                    setText(item);
-                }
+                setText(empty || item == null ? "-- Select a project --" : item);
             }
         });
 
@@ -78,7 +76,8 @@ public class MainPage extends VBox {
 
         runButton.setDisable(true);
         showResultsButton.setDisable(true);
-        HBox actions = new HBox(20, runButton, showResultsButton);
+        HBox actions = new HBox(20, runButton, showResultsButton, deleteProjectButton);
+
         actions.setAlignment(Pos.CENTER);
         actions.setPadding(new Insets(15));
         actions.setStyle("-fx-background-color: #2F3136;");
@@ -139,6 +138,42 @@ public class MainPage extends VBox {
                 showAlert("No Results", "No execution data available. Run the project first.");
             }
         });
+
+        deleteProjectButton.setOnAction(e -> {
+            String selected = projectSelector.getValue();
+            if (selected == null) {
+                showAlert("No Project Selected", "Please select a project to delete.");
+                return;
+            }
+
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmation.setTitle("Confirm Deletion");
+            confirmation.setHeaderText("Are you sure you want to delete this project?");
+            confirmation.setContentText("Project: " + selected);
+
+            confirmation.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    deleteSelectedProject(selected);
+                }
+            });
+        });
+    }
+
+    private void deleteSelectedProject(String projectName) {
+        Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+        File projectFile = projectsDir.resolve(projectName + ".json").toFile();
+
+        if (projectFile.exists() && projectFile.delete()) {
+            projectSelector.getItems().remove(projectName);
+            projectSelector.setValue(null);
+            resultTable.getItems().clear();
+            runButton.setDisable(true);
+            showResultsButton.setDisable(true);
+            currentProject = null;
+            showAlert("Project Deleted", "Project '" + projectName + "' was deleted successfully.");
+        } else {
+            showAlert("Error", "Failed to delete project: " + projectName);
+        }
     }
 
     private void loadProjects() {
@@ -149,11 +184,7 @@ public class MainPage extends VBox {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("-- Select a project --");
-                } else {
-                    setText(item);
-                }
+                setText(empty || item == null ? "-- Select a project --" : item);
             }
         });
         Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
