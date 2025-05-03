@@ -371,9 +371,7 @@ public class SubmissionsWorker {
             return command;
         }
 
-
         String ext = config.getExecutableExtension();
-
 
         List<Path> candidateFiles = Files.list(compileOutputDir)
                 .filter(p -> p.toString().endsWith(ext))
@@ -385,27 +383,25 @@ public class SubmissionsWorker {
 
         Path executablePath = candidateFiles.get(0);
 
-        if (ext.equals(".class")) {
-            String className = executablePath.getFileName().toString().replace(".class", "");
-            command.add("java");
-            command.add(className);
-        } else {
-            if (config.getRunParameters().isEmpty()) {
-                command.add(executablePath.toAbsolutePath().toString());
-            } else {
-                for (String param : config.getRunParameters()) {
-                    String processed = param
-                            .replace("{Output}", executablePath.getFileName().toString().replace(ext, ""))
-                            .replace("{OutputFull}", executablePath.toAbsolutePath().toString());
-                    command.add(processed);
-                }
-            }
+        command.add(config.getRunCommand().trim());
 
-            if (command.isEmpty()) {
-                command.add(executablePath.toAbsolutePath().toString());
+        if (config.getRunCommand().trim().isBlank()) {
+                command.remove(0);
+        } else {
+            for (String param : config.getRunParameters()) {
+                String processed = param
+                        .replace("{Output}", executablePath.getFileName().toString().replace(ext, ""))
+                        .replace("{output}", executablePath.getFileName().toString().replace(ext, ""))
+                        .replace("{OutputFull}", executablePath.toAbsolutePath().toString());
+                command.add(processed);
             }
         }
 
+        if (command.isEmpty()) {
+            command.add(executablePath.toAbsolutePath().toString());
+        }
+        
+        System.out.println();
         return command;
     }
 
