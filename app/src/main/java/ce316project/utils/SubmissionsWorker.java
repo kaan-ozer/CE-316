@@ -185,7 +185,7 @@ public class SubmissionsWorker {
         for (Student student : students ) {
             synchronized (student) {
                 if(student.getStatus() == Status.COMPLETED){
-                    if(student.getExecutionResult().equals(fileContent)){
+                    if(student.getExecutionResult().getStdOutput().equals(fileContent)){
                         student.setStatus(Status.PASSED);
                     }
                     else {
