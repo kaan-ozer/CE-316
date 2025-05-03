@@ -1,20 +1,18 @@
 package ce316project.views;
 
-import ce316project.controller.PageController;
+
 import ce316project.entities.Project;
 import ce316project.entities.Student;
 import com.owlike.genson.Genson;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.File;
 import java.io.FileReader;
@@ -24,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainPage extends VBox {
 
@@ -99,8 +96,7 @@ public class MainPage extends VBox {
         runButton.setOnAction(e -> {
             if (currentProject != null) {
                 currentProject.compileSubmissions();
-                currentProject.runSubmissions(currentProject.getSubmissionsPath());
-                currentProject.compareSubmissions(currentProject.getExpectedOutputPath());
+                currentProject.runSubmissions(currentProject.getExpectedOutputPath());
                 showAlert("Run Complete", "Execution completed for project: " + currentProject.getProjectName());
             } else {
                 showAlert("No Project Selected", "Please select a project first.");

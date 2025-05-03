@@ -169,38 +169,48 @@ public class SubmissionsWorker {
             .orElseThrow(() -> new IOException("Output file not found"));
     }
 
-    public void compareSubmissions(String referencePath) // NOT sure writing referencePath as a parameter is a good idea. Mert should check whether is suitable or not.
-    {
-        StringBuilder result = new StringBuilder();
+    //TODO: this will be remade
+    public void compareSubmissions(String expectedOutputPath) {
+        Path expectedFilePath = Paths.get(expectedOutputPath);
+        System.out.println("expectedFilePath.getFileName: " +expectedFilePath.getFileName());
 
-        try {
-            Files.lines(Paths.get(referencePath)).forEach(line -> result.append(line).append("\n"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!Files.exists(expectedFilePath) || Files.isDirectory(expectedFilePath)) {
+            System.out.println("❌ Expected output path is invalid or not a file: " + expectedOutputPath);
+            return;
         }
-        
-        String fileContent = result.toString();
-        System.out.println(fileContent);
 
-        for (Student student : students ) {
+        String expectedOutput;
+        try {
+            expectedOutput = Files.readString(expectedFilePath).trim(); // remove trailing \n etc.
+        } catch (IOException e) {
+            System.out.println("❌ Failed to read expected output file: " + e.getMessage());
+            return;
+        }
+
+        for (Student student : students) {
             synchronized (student) {
-                if(student.getStatus() == Status.COMPLETED){
-                    if(student.getExecutionResult().equals(fileContent)){
+                if (student.getExecutionResult() != null) {
+                    String actualOutput = student.getExecutionResult().getStdOutput().trim();
+                    System.err.println("student: " + student.getStudentId());
+                    System.err.println("actualOutput: " + actualOutput);
+                    System.err.println("expectedOutput: " + expectedOutput);
+                    System.out.println();
+                    System.out.println();
+                    if (actualOutput.equals(expectedOutput)) {
                         student.setStatus(Status.PASSED);
-                    }
-                    else {
+                    } else {
+                        System.err.println("student: " + student.getStudentId());
+                        System.err.println("actualOutput: " + actualOutput);
+                        System.err.println("expectedOutput: " + expectedOutput);
+                        System.out.println();
+                        System.out.println();
                         student.setStatus(Status.FAILED);
                     }
                 }
-            
-                else {
-                    //Student Got broken codes so maybe status set to be failed in future.
-                    //student.setStatus(Status.FAILED);
-                }
             }
         }
-
     }
+
   
     public void executeSubmissions()
     {
@@ -212,6 +222,7 @@ public class SubmissionsWorker {
             if(student.getCompilationResult() != null && student.getCompilationResult().isSuccess()) {
             executor.submit(() -> {
                 ExecutionResult result = executeSubmission(student);
+                System.out.println( "executeSubmissions" + result.getStdOutput());
                 student.setExecutionResult(result);
             });
             } else {
@@ -278,6 +289,7 @@ public class SubmissionsWorker {
                 try {
                     String line;
                     while((line = stdOutReader.readLine()) != null) {
+                        System.out.println(line);
                         stdOutBuilder.append(line).append("\n");
                     }
                 } catch (IOException e) {
