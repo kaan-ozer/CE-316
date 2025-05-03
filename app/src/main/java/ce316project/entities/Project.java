@@ -59,7 +59,6 @@ public class Project {
     {
         SubmissionsWorker submissionsWorker = new SubmissionsWorker(students, config);
         submissionsWorker.compileSubmissions();
-
     }
 
     public void runSubmissions(String expectedOutputPath) {
@@ -67,16 +66,6 @@ public class Project {
         worker.executeSubmissions();
         worker.compareSubmissions(expectedOutputPath);
     }
-
-
-    /**
-     * If you ever want to do compare separately:
-     */
-    public void compareSubmissions(String expectedOutputPath) {
-        SubmissionsWorker worker = new SubmissionsWorker(students, config);
-        worker.compareSubmissions(expectedOutputPath);
-    }
-
 
     public String getProjectName() {
         return projectName;
