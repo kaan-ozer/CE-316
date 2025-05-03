@@ -1,0 +1,15 @@
+{
+  "compilerCommand": "javac",
+  "compilerParameters": [
+    "Main.java"
+  ],
+  "compilerPath": "",
+  "configName": "javaConfiguration",
+  "executableExtension": ".class",
+  "language": "java",
+  "runCommand": "java",
+  "runParameters": [
+    "Main"
+  ],
+  "sourceExtension": ".java"
+}
