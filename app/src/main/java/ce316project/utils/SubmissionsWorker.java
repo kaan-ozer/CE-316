@@ -89,7 +89,6 @@ public class SubmissionsWorker {
         }
 
         try {
-            System.out.println("[compile] Scanning for source files in: " + submissionDir.toAbsolutePath());
             List<File> sourceFiles = Files.walk(submissionDir)
                 .filter(Files::isRegularFile)
                 .map(Path::toFile)
@@ -97,13 +96,10 @@ public class SubmissionsWorker {
                 .collect(Collectors.toList());
             
             if(sourceFiles.isEmpty()) {
-                System.out.println("[compile] ❌ No source files found!");
                 return new CompilationResult(false, "No Source File Found", "", Duration.between(start, Instant.now()));
             }
 
             List<String> command = buildCompilerCommand(student.getStudentId(),submissionDir, sourceFiles);
-            System.out.println("[compile] Compiler command: " + String.join(" ", command));
-
             Process process = new ProcessBuilder()
                 .directory(submissionDir.toFile())
                 .command(command)
@@ -117,7 +113,6 @@ public class SubmissionsWorker {
                 outputBuilder.append(line).append("\n");
             }
             output = outputBuilder.toString().trim();
-            System.out.println("[compile] Output: " + output);
 
             int exitCode = process.waitFor();
             success = exitCode == 0;
@@ -146,7 +141,6 @@ public class SubmissionsWorker {
         String outputFileName = studentId + "_output";
 
         for (String param : config.getCompilerParameters()) {
-            System.out.println(param);
             if (param.equals("{output}")) {
                 command.add(outputFileName);
             } 
@@ -159,7 +153,6 @@ public class SubmissionsWorker {
         } 
 
         if(config.getCompilerPath() != null && !config.getCompilerPath().isEmpty() && !config.getCompilerPath().equals("")) {
-            System.out.println("Enter");
             command.set(0,config.getCompilerPath());
         } 
 
@@ -174,13 +167,10 @@ public class SubmissionsWorker {
             .orElseThrow(() -> new IOException("Output file not found"));
     }
 
-    //TODO: this will be remade
     public void compareSubmissions(String expectedOutputPath) {
         Path expectedFilePath = Paths.get(expectedOutputPath);
-        System.out.println("expectedFilePath.getFileName: " +expectedFilePath.getFileName());
 
         if (!Files.exists(expectedFilePath) || Files.isDirectory(expectedFilePath)) {
-            System.out.println("❌ Expected output path is invalid or not a file: " + expectedOutputPath);
             return;
         }
 
@@ -188,7 +178,6 @@ public class SubmissionsWorker {
         try {
             expectedOutput = Files.readString(expectedFilePath).trim(); // remove trailing \n etc.
         } catch (IOException e) {
-            System.out.println("❌ Failed to read expected output file: " + e.getMessage());
             return;
         }
 
@@ -196,19 +185,9 @@ public class SubmissionsWorker {
             synchronized (student) {
                 if (student.getExecutionResult() != null) {
                     String actualOutput = student.getExecutionResult().getStdOutput().trim();
-                    System.err.println("student: " + student.getStudentId());
-                    System.err.println("actualOutput: " + actualOutput);
-                    System.err.println("expectedOutput: " + expectedOutput);
-                    System.out.println();
-                    System.out.println();
                     if (actualOutput.equals(expectedOutput)) {
                         student.setStatus(Status.PASSED);
                     } else {
-                        System.err.println("student: " + student.getStudentId());
-                        System.err.println("actualOutput: " + actualOutput);
-                        System.err.println("expectedOutput: " + expectedOutput);
-                        System.out.println();
-                        System.out.println();
                         student.setStatus(Status.FAILED);
                     }
                 }
@@ -227,7 +206,6 @@ public class SubmissionsWorker {
             if(student.getCompilationResult() != null && student.getCompilationResult().isSuccess()) {
             executor.submit(() -> {
                 ExecutionResult result = executeSubmission(student);
-                System.out.println( "executeSubmissions" + result.getStdOutput());
                 student.setExecutionResult(result);
             });
             } else {
@@ -294,7 +272,6 @@ public class SubmissionsWorker {
                 try {
                     String line;
                     while((line = stdOutReader.readLine()) != null) {
-                        System.out.println(line);
                         stdOutBuilder.append(line).append("\n");
                     }
                 } catch (IOException e) {
@@ -351,7 +328,6 @@ public class SubmissionsWorker {
                 student.setStatus(Status.ERROR);
             }
         }
-
         return result;
     }
 
@@ -362,8 +338,6 @@ public class SubmissionsWorker {
 
         if (isInterpreted) {
             Path sourceFile = findSourceFile(compileOutputDir);
-            
-            System.out.println("Compiler Path"+config.getCompilerPath());
 
             if (!config.getRunParameters().isEmpty()) {
                 command.addAll(config.getRunParameters());
@@ -374,7 +348,6 @@ public class SubmissionsWorker {
             } 
 
             command.add(sourceFile.toString());
-            System.out.println("[execute] Interpreted command: " + String.join(" ", command));
             return command;
         }
 
@@ -398,13 +371,9 @@ public class SubmissionsWorker {
                         .replace("{OutputFull}", executablePath.toAbsolutePath().toString());
                 command.add(processed);
         }
-        
-
         if (command.isEmpty()) {
             command.add(executablePath.toAbsolutePath().toString());
         }
-        
-        System.out.println("Run Command"+command);
         return command;
     }
 
@@ -415,6 +384,5 @@ public class SubmissionsWorker {
         new IOException("No source file found with extension: " + config.getSourceExtension())
     );
 }
-
-    
+ 
 }

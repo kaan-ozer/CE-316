@@ -48,5 +48,4 @@ public class Student {
         this.status = status;
     }
 
-    
 }

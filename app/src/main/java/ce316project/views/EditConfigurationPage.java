@@ -305,8 +305,6 @@ public class EditConfigurationPage extends VBox {
         }
     }
 
-
-
     private void deleteSelectedConfiguration() {
         String selectedConfig = configSelector.getValue();
 
@@ -418,7 +416,6 @@ public class EditConfigurationPage extends VBox {
                 runParametersField.clear();
                 failedFields.append("Run Parameters\n");
             }
-
             try {
                 if (config.getCompilerPath() == null || config.getCompilerPath().isEmpty()) {
                     compilerInstalledCheckBox.setSelected(true);

@@ -196,7 +196,6 @@ public class CreateProjectPage extends VBox {
                 }
             }
 
-
             File destFile = configsDir.resolve(importedConfigName + ".json").toFile();
             java.nio.file.Files.copy(selectedFile.toPath(), destFile.toPath());
 

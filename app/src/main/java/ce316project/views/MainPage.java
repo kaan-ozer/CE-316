@@ -1,5 +1,6 @@
 package ce316project.views;
 
+import ce316project.entities.ExecutionResult;
 import ce316project.entities.Project;
 import ce316project.entities.Student;
 import com.owlike.genson.Genson;
@@ -21,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class MainPage extends VBox {
 
@@ -61,7 +63,9 @@ public class MainPage extends VBox {
             }
         });
 
-        HBox controlPanel = new HBox(10, selectLabel, projectSelector, refreshButton);
+        Label refreshLabel = new Label("Please refresh after adding a new project.");
+        refreshLabel.setStyle("-fx-text-fill: #ECECEC;");
+        HBox controlPanel = new HBox(10, selectLabel, projectSelector, refreshButton, refreshLabel);
         controlPanel.setAlignment(Pos.CENTER_LEFT);
         controlPanel.setPadding(new Insets(10));
 
@@ -72,10 +76,15 @@ public class MainPage extends VBox {
         TableColumn<Student, String> resDirectoryColumn = new TableColumn<>("Directory");
         resDirectoryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDirectoryPath().toString()));
         TableColumn<Student, String> resErColumn = new TableColumn<>("Standard Error");
-        resErColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getStdError()));
+        resErColumn.setCellValueFactory(data ->
+            new SimpleStringProperty(
+                Optional.ofNullable(data.getValue().getExecutionResult())
+                .map(ExecutionResult::getStdError)
+                .filter(error -> !error.isEmpty())
+                .orElse("No Error")));
         TableColumn<Student, String> resOutputColumn = new TableColumn<>("Standard Output");
         resOutputColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getStdOutput()));
-        TableColumn<Student, String> resDuraColumn = new TableColumn<>("Execution Result");
+        TableColumn<Student, String> resDuraColumn = new TableColumn<>("Execution Result (ms)");
         resDuraColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getMillis()));
         resultTable.getColumns().addAll(studentCol, resultCol, resDirectoryColumn, resOutputColumn, resErColumn, resDuraColumn);
         resultTable.setPlaceholder(new Label("No submissions yet."));
@@ -212,7 +221,9 @@ public class MainPage extends VBox {
             Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
             File projectFile = projectsDir.resolve(projectName + ".json").toFile();
             Genson genson = new Genson();
-            currentProject = genson.deserialize(new FileReader(projectFile), Project.class);
+            try (FileReader reader = new FileReader(projectFile)) {
+                currentProject = genson.deserialize(reader, Project.class);
+            }
             currentProject.setStudents(new ArrayList<>());
             currentProject.prepareSubmissions(currentProject.getSubmissionsPath());
         } catch (IOException e) {
