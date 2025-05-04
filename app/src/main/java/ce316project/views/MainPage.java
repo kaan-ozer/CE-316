@@ -214,7 +214,9 @@ public class MainPage extends VBox {
             Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
             File projectFile = projectsDir.resolve(projectName + ".json").toFile();
             Genson genson = new Genson();
-            currentProject = genson.deserialize(new FileReader(projectFile), Project.class);
+            try (FileReader reader = new FileReader(projectFile)) {
+                currentProject = genson.deserialize(reader, Project.class);
+            }
             currentProject.setStudents(new ArrayList<>());
             currentProject.prepareSubmissions(currentProject.getSubmissionsPath());
         } catch (IOException e) {
