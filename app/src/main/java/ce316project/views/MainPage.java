@@ -61,7 +61,9 @@ public class MainPage extends VBox {
             }
         });
 
-        HBox controlPanel = new HBox(10, selectLabel, projectSelector, refreshButton);
+        Label refreshLabel = new Label("Please refresh after adding a new project.");
+        refreshLabel.setStyle("-fx-text-fill: #ECECEC;");
+        HBox controlPanel = new HBox(10, selectLabel, projectSelector, refreshButton, refreshLabel);
         controlPanel.setAlignment(Pos.CENTER_LEFT);
         controlPanel.setPadding(new Insets(10));
 
