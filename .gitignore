@@ -56,3 +56,4 @@ dkms.conf
 
 # Ignore Gradle build output directory
 build
+app/src/main/java/ce316project/views/MainPage.java

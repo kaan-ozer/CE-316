@@ -71,11 +71,13 @@ public class MainPage extends VBox {
         resultCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
         TableColumn<Student, String> resDirectoryColumn = new TableColumn<>("Directory");
         resDirectoryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDirectoryPath().toString()));
-        TableColumn<Student, String> resExColumn = new TableColumn<>("Execution Result");
-        resExColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().toString()));
-        TableColumn<Student, String> resCompColumn = new TableColumn<>("Compilation Result");
-        resCompColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCompilationResult().toString()));
-        resultTable.getColumns().addAll(studentCol, resultCol, resDirectoryColumn, resExColumn, resCompColumn);
+        TableColumn<Student, String> resErColumn = new TableColumn<>("Standard Error");
+        resErColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getStdError()));
+        TableColumn<Student, String> resOutputColumn = new TableColumn<>("Standard Output");
+        resOutputColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getStdOutput()));
+        TableColumn<Student, String> resDuraColumn = new TableColumn<>("Execution Result");
+        resDuraColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getExecutionDuration().toString()));
+        resultTable.getColumns().addAll(studentCol, resultCol, resDirectoryColumn, resOutputColumn, resErColumn, resDuraColumn);
         resultTable.setPlaceholder(new Label("No submissions yet."));
         resultTable.setPrefHeight(250);
         resultTable.setStyle("-fx-background-color: #2A2A2E; -fx-text-fill: #F0F0F0;");
