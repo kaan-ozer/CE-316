@@ -76,7 +76,7 @@ public class MainPage extends VBox {
         TableColumn<Student, String> resOutputColumn = new TableColumn<>("Standard Output");
         resOutputColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getStdOutput()));
         TableColumn<Student, String> resDuraColumn = new TableColumn<>("Execution Result");
-        resDuraColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getExecutionDuration().toString()));
+        resDuraColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getMillis()));
         resultTable.getColumns().addAll(studentCol, resultCol, resDirectoryColumn, resOutputColumn, resErColumn, resDuraColumn);
         resultTable.setPlaceholder(new Label("No submissions yet."));
         resultTable.setPrefHeight(250);
