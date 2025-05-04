@@ -1,1 +1,1 @@
-{"compilerParameters":["gcc","-o","{output}","{sources}"],"compilerPath":"C:\\TDM-GCC-64\\bin\\gcc.exe","configName":"C_Config","executableExtension":".exe","language":"c","runParameters":["{OutputFull}"],"sourceExtension":".c"}
+{"compilerParameters":["gcc","-o","{output}","{sources}"],"compilerPath":"","configName":"C_Config","executableExtension":".exe","language":"c","runParameters":["{OutputFull}"],"sourceExtension":".c"}
