@@ -69,7 +69,13 @@ public class MainPage extends VBox {
         studentCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStudentId()));
         TableColumn<Student, String> resultCol = new TableColumn<>("Result");
         resultCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
-        resultTable.getColumns().addAll(studentCol, resultCol);
+        TableColumn<Student, String> resDirectoryColumn = new TableColumn<>("Directory");
+        resDirectoryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDirectoryPath().toString()));
+        TableColumn<Student, String> resExColumn = new TableColumn<>("Execution Result");
+        resExColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().toString()));
+        TableColumn<Student, String> resCompColumn = new TableColumn<>("Compilation Result");
+        resCompColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCompilationResult().toString()));
+        resultTable.getColumns().addAll(studentCol, resultCol, resDirectoryColumn, resExColumn, resCompColumn);
         resultTable.setPlaceholder(new Label("No submissions yet."));
         resultTable.setPrefHeight(250);
         resultTable.setStyle("-fx-background-color: #2A2A2E; -fx-text-fill: #F0F0F0;");
