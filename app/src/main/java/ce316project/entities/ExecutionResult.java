@@ -43,6 +43,10 @@ public class ExecutionResult {
         return executionDuration;
     }
 
+    public String getMillis() {
+        return Integer.toString((int) executionDuration.toMillis());
+    }
+
     public void setExecutionDuration(Duration executionDuration) {
         this.executionDuration = executionDuration;
     }
