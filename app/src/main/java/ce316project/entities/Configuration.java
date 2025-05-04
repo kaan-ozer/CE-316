@@ -1,13 +1,7 @@
 package ce316project.entities;
 
-import com.owlike.genson.annotation.JsonIgnore;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
 public class Configuration {
-
 
     private String configName;
     private String language;
@@ -87,6 +81,5 @@ public class Configuration {
     public void setSourceExtension(String sourceExtension) {
         this.sourceExtension = sourceExtension;
     }
-
 
 }

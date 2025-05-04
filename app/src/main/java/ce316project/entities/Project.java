@@ -36,10 +36,6 @@ public class Project {
         this.expectedOutputPath = expectedOutputPath;
     }
 
-
-
-
-
     public void prepareSubmissions(String submissionsDirectory)
     {
         ZipExtractor zipExtractor = new ZipExtractor(submissionsDirectory);
