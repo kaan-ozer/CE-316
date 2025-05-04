@@ -30,7 +30,6 @@ public class ZipExtractor {
 
         if(zipFiles == null || zipFiles.length == 0)
         {
-            System.out.println("No zip files found in directory.");
             return Collections.emptyMap();
         }
 
@@ -47,7 +46,6 @@ public class ZipExtractor {
                     Files.createDirectories(outputDir);
                     extractZip(zipFile, outputDir);
                     studentEntries.put(studentId, outputDir.resolve(studentId));
-                    System.out.println("Extracted: " + zipFile.getName() + " on thread: " + Thread.currentThread().getName());
                 } catch (IOException e) {
                     System.err.println("Failed to extract " + zipFile.getName() + ": " + e.getMessage());
                 }
