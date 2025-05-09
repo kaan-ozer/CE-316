@@ -1,1 +1,1 @@
-{"compilerParameters":["gcc","-o","{output}","{sources}"],"compilerPath":"","configName":"C_Config","executableExtension":".exe","language":"c","runParameters":["{OutputFull}"],"sourceExtension":".c"}
+{"compilerParameters":["gcc","-o","{output}","{sources}"],"compilerPath":"","configName":"C_Config","executableExtension":".exe","language":"c","runParameters":["{OutputFull}","argsfile.txt"],"sourceExtension":".c"}
