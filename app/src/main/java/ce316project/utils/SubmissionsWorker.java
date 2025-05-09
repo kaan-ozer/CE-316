@@ -333,25 +333,33 @@ public class SubmissionsWorker {
 
     private List<String> buildExecutionCommand(Path compileOutputDir) throws IOException {
         List<String> command = new ArrayList<>();
+        String ext = config.getExecutableExtension();
 
         boolean isInterpreted = (config.getCompilerParameters() == null || config.getCompilerParameters().isEmpty());
 
         if (isInterpreted) {
-            Path sourceFile = findSourceFile(compileOutputDir);
+            Path executablePath = findSourceFile(compileOutputDir);
 
-            if (!config.getRunParameters().isEmpty()) {
-                command.addAll(config.getRunParameters());
+            for (String param : config.getRunParameters()) {
+                String processed = param
+                        .replace("{Output}", executablePath.getFileName().toString().replace(ext, ""))
+                        .replace("{output}", executablePath.getFileName().toString().replace(ext, ""))
+                        .replace("{outputfull}", executablePath.toAbsolutePath().toString())
+                        .replace("{OutputFull}", executablePath.toAbsolutePath().toString());
+                command.add(processed);
+            }
+            if (command.isEmpty()) {
+                command.add(executablePath.toAbsolutePath().toString());
             }
 
             if(config.getCompilerPath() != null && !config.getCompilerPath().isEmpty() && !config.getCompilerPath().equals("")) {
                 command.set(0,config.getCompilerPath());
-            } 
+            }
 
-            command.add(sourceFile.toString());
+            System.out.println(command);
             return command;
         }
 
-        String ext = config.getExecutableExtension();
 
         List<Path> candidateFiles = Files.list(compileOutputDir)
                 .filter(p -> p.toString().endsWith(ext))
