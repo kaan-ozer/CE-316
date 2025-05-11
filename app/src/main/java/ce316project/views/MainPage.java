@@ -82,14 +82,22 @@ public class MainPage extends VBox {
                 .map(ExecutionResult::getStdError)
                 .filter(error -> !error.isEmpty())
                 .orElse("No Error")));
+        resErColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.16));
         TableColumn<Student, String> resOutputColumn = new TableColumn<>("Standard Output");
         resOutputColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getStdOutput()));
+        resOutputColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.16));
         TableColumn<Student, String> resDuraColumn = new TableColumn<>("Execution Result (ms)");
         resDuraColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getMillis()));
+        resDuraColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.16));
+        studentCol.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.1));
+        resultCol.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.1));
+        resDirectoryColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.1));
         resultTable.getColumns().addAll(studentCol, resultCol, resDirectoryColumn, resOutputColumn, resErColumn, resDuraColumn);
         resultTable.setPlaceholder(new Label("No submissions yet."));
         resultTable.setPrefHeight(250);
         resultTable.setStyle("-fx-background-color: #2A2A2E; -fx-text-fill: #F0F0F0;");
+    
+
 
         runButton.setDisable(true);
         showResultsButton.setDisable(true);
