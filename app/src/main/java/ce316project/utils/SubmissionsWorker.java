@@ -41,7 +41,7 @@ public class SubmissionsWorker {
                 student.setCompilationResult(new CompilationResult(
                     true, "",
                      "Interpreted Language - no compilation required", 
-                    Duration.ZERO
+                    "0"
                 ));
                 student.setStatus(Status.READY);
             }
@@ -96,7 +96,7 @@ public class SubmissionsWorker {
                 .collect(Collectors.toList());
             
             if(sourceFiles.isEmpty()) {
-                return new CompilationResult(false, "No Source File Found", "", Duration.between(start, Instant.now()));
+                return new CompilationResult(false, "No Source File Found", "", String.valueOf(Duration.between(start, Instant.now()).toMillis()));
             }
 
             List<String> command = buildCompilerCommand(student.getStudentId(),submissionDir, sourceFiles);
@@ -130,7 +130,7 @@ public class SubmissionsWorker {
             success, 
             outputPath,
             output, 
-            Duration.between(start, Instant.now())
+            String.valueOf(Duration.between(start, Instant.now()).toMillis())
         );
     }
 
@@ -213,7 +213,7 @@ public class SubmissionsWorker {
                 1, 
                 "", 
                 "Execution skipped: Compilation failed or not attempted", 
-                    Duration.ZERO
+                    "0"
                 );
                 synchronized (student) {
                     student.setExecutionResult(failedResult);
@@ -240,7 +240,7 @@ public class SubmissionsWorker {
         int exitCode = 1;
         String stdOut = "";
         String stdError = "";
-        Duration executionDuration;
+        String executionDuration;
 
         synchronized (student) {
             student.setStatus(Status.EXECUTING);
@@ -316,7 +316,7 @@ public class SubmissionsWorker {
                 Thread.currentThread().interrupt();
             }
         } finally {
-            executionDuration = Duration.between(start, Instant.now());
+            executionDuration = String.valueOf(Duration.between(start, Instant.now()).toMillis());
         }
 
         ExecutionResult result = new ExecutionResult(exitCode, stdOut, stdError, executionDuration);

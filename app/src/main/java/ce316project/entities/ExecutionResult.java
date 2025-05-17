@@ -1,14 +1,11 @@
 package ce316project.entities;
-
-import java.time.Duration;
-
 public class ExecutionResult {
     private int exitCode;
     private String stdOutput;
     private String stdError;
-    private Duration executionDuration;
+    private String executionDuration;
     
-    public ExecutionResult(int exitCode, String stdOutput, String stdError, Duration executionDuration) {
+    public ExecutionResult(int exitCode, String stdOutput, String stdError, String executionDuration) {
         this.exitCode = exitCode;
         this.stdOutput = stdOutput;
         this.stdError = stdError;
@@ -39,15 +36,11 @@ public class ExecutionResult {
         this.stdError = stdError;
     }
 
-    public Duration getExecutionDuration() {
+    public String getExecutionDuration() {
         return executionDuration;
     }
 
-    public String getMillis() {
-        return Integer.toString((int) executionDuration.toMillis());
-    }
-
-    public void setExecutionDuration(Duration executionDuration) {
+    public void setExecutionDuration(String executionDuration) {
         this.executionDuration = executionDuration;
     }
 }

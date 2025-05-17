@@ -18,7 +18,7 @@ public class PageController {
         Scene scene = new Scene(rootNode, INITIALPAGEXSIZE, INITIALPAGEYSIZE);
         Stage stage = new Stage();
         stage.setScene(scene);
-        stage.setTitle("Librarian");
+        stage.setTitle("IAE");
         pagesArray.add(stage);
         stage.show();
     }
