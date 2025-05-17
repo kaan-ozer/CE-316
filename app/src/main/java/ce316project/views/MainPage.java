@@ -87,7 +87,7 @@ public class MainPage extends VBox {
         resOutputColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getStdOutput()));
         resOutputColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.16));
         TableColumn<Student, String> resDuraColumn = new TableColumn<>("Execution Result (ms)");
-        resDuraColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getMillis()));
+        resDuraColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getExecutionDuration()));
         resDuraColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.16));
         studentCol.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.1));
         resultCol.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.1));
@@ -273,7 +273,7 @@ public class MainPage extends VBox {
                         .map(ExecutionResult::getStdError)
                         .filter(e -> !e.isEmpty())
                         .orElse("No Error");
-                String duration = r != null ? r.getMillis() : "N/A";
+                String duration = r != null ? r.getExecutionDuration() : "N/A";
                 out.printf("%-15s %-12s %-20s %-20s %8s%n", id, status, output, error, duration);
             }
             showAlert("Export Complete", "Results saved to:\n" + file.getAbsolutePath());

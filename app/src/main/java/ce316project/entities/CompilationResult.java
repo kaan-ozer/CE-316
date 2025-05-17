@@ -1,15 +1,12 @@
 package ce316project.entities;
-
-import java.time.Duration;
-
 public class CompilationResult {
 
     private boolean success;
     private String outputPath;
     private String compilerOutput;
-    private Duration compiliationTime;
+    private String compiliationTime;
 
-    public CompilationResult(boolean success, String outputPath, String compilerOutput, Duration compiliationTime) {
+    public CompilationResult(boolean success, String outputPath, String compilerOutput, String compiliationTime) {
         this.success = success;
         this.outputPath = outputPath;
         this.compilerOutput = compilerOutput;
@@ -40,11 +37,11 @@ public class CompilationResult {
         this.compilerOutput = compilerOutput;
     }
 
-    public Duration getCompiliationTime() {
+    public String getCompiliationTime() {
         return compiliationTime;
     }
 
-    public void setCompiliationTime(Duration compiliationTime) {
+    public void setCompiliationTime(String compiliationTime) {
         this.compiliationTime = compiliationTime;
     }
     
