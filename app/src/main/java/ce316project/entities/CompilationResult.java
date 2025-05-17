@@ -4,14 +4,15 @@ public class CompilationResult {
     private boolean success;
     private String outputPath;
     private String compilerOutput;
-    private String compiliationTime;
+    private String compilationTime;
 
-    public CompilationResult(boolean success, String outputPath, String compilerOutput, String compiliationTime) {
+    public CompilationResult(boolean success, String outputPath, String compilerOutput, String compilationTime) {
         this.success = success;
         this.outputPath = outputPath;
         this.compilerOutput = compilerOutput;
-        this.compiliationTime = compiliationTime;
+        this.compilationTime = compilationTime;
     }
+    public CompilationResult() {}
 
     public boolean isSuccess() {
         return success;
@@ -37,12 +38,12 @@ public class CompilationResult {
         this.compilerOutput = compilerOutput;
     }
 
-    public String getCompiliationTime() {
-        return compiliationTime;
+    public String getCompilationTime() {
+        return compilationTime;
     }
 
-    public void setCompiliationTime(String compiliationTime) {
-        this.compiliationTime = compiliationTime;
+    public void setCompilationTime(String compilationTime) {
+        this.compilationTime = compilationTime;
     }
-    
+
 }

@@ -12,6 +12,8 @@ public class ExecutionResult {
         this.executionDuration = executionDuration;
     }
 
+    public ExecutionResult(){}
+
     public int getExitCode() {
         return exitCode;
     }

@@ -23,7 +23,7 @@ public class StudentTest {
     @Test
     public void testSetCompilationResult() {
         Student student = new Student("123", "/MockPath");
-        CompilationResult result = new CompilationResult(true, "out", "log", Duration.ofMillis(100));
+        CompilationResult result = new CompilationResult(true, "out", "log", String.valueOf(Duration.ofMillis(100)));
         student.setCompilationResult(result);
 
         assertSame(result, student.getCompilationResult());
@@ -32,7 +32,7 @@ public class StudentTest {
     @Test
     public void testSetExecutionResult() {
         Student student = new Student("123", "/MockPath");
-        ExecutionResult result = new ExecutionResult(0, "stdOut", "stdErr", Duration.ofMillis(100));
+        ExecutionResult result = new ExecutionResult(0, "stdOut", "stdErr", String.valueOf(Duration.ofMillis(100)));
         student.setExecutionResult(result);
 
         assertSame(result, student.getExecutionResult());

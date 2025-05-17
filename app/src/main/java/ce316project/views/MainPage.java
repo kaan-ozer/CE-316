@@ -74,7 +74,8 @@ public class MainPage extends VBox {
         TableColumn<Student, String> resultCol = new TableColumn<>("Result");
         resultCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStatus().toString()));
         TableColumn<Student, String> resDirectoryColumn = new TableColumn<>("Directory");
-        resDirectoryColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDirectoryPath().toString()));
+        resDirectoryColumn.setCellValueFactory(data ->
+                new SimpleStringProperty(Optional.ofNullable(data.getValue().getDirectoryPath()).orElse("N/A")));
         TableColumn<Student, String> resErColumn = new TableColumn<>("Standard Error");
         resErColumn.setCellValueFactory(data ->
                 new SimpleStringProperty(
@@ -155,18 +156,31 @@ public class MainPage extends VBox {
         });
 
         showResultsButton.setOnAction(e -> {
-            if (!runExecuted) {
-                showAlert("Execution Required", "Please run the project before viewing results.");
+            if (currentProject == null || currentProject.getStudents() == null || currentProject.getStudents().isEmpty()) {
+                showAlert("No Results", "No execution data available. Run the project first.");
                 return;
             }
-            if (currentProject != null && currentProject.getStudents() != null) {
-                resultTable.getItems().setAll(currentProject.getStudents());
-                exportButton.setDisable(false);
-            } else {
-                showAlert("No Results", "No execution data available. Run the project first.");
-            }
 
+            resultTable.getItems().setAll(currentProject.getStudents());
+            exportButton.setDisable(false);
+
+            try {
+                Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+                File projectFile = projectsDir.resolve(currentProject.getProjectName() + ".json").toFile();
+
+                Genson genson = new Genson();
+
+                try (FileWriter writer = new FileWriter(projectFile)) {
+                    genson.serialize(currentProject, writer);
+                }
+
+                showAlert("Results Shown", "Results have been updated and saved for project: " + currentProject.getProjectName());
+            } catch (IOException ex) {
+                showAlert("Error Saving Project", "Could not save project results:\n" + ex.getMessage());
+            }
         });
+
+
 
         exportButton.setOnAction(e -> {
             if (currentProject == null || currentProject.getStudents() == null) {
@@ -244,8 +258,19 @@ public class MainPage extends VBox {
             try (FileReader reader = new FileReader(projectFile)) {
                 currentProject = genson.deserialize(reader, Project.class);
             }
-            currentProject.setStudents(new ArrayList<>());
-            currentProject.prepareSubmissions(currentProject.getSubmissionsPath());
+
+            if (currentProject.getStudents() == null || currentProject.getStudents().isEmpty()) {
+                currentProject.setStudents(new ArrayList<>());
+                currentProject.prepareSubmissions(currentProject.getSubmissionsPath());
+                resultTable.getItems().clear();
+                showAlert("Project Loaded", "Project loaded. No results yet, please RUN.");
+            } else {
+                resultTable.getItems().setAll(currentProject.getStudents());
+                showAlert("Project Loaded", "Project loaded with saved results.");
+                exportButton.setDisable(false);
+                showResultsButton.setDisable(false);
+            }
+
         } catch (IOException e) {
             showAlert("Error Loading Project", e.getMessage());
         }
