@@ -9,6 +9,8 @@ public class Student {
     private CompilationResult compilationResult;
     private Status status;
 
+    public Student() {}
+
     public Student(String studentId, String directoryPath)
     {
         this.studentId = studentId;
@@ -48,4 +50,11 @@ public class Student {
         this.status = status;
     }
 
+    public void setStudentId(String studentId) {
+        this.studentId = studentId;
+    }
+
+    public void setDirectoryPath(String directoryPath) {
+        this.directoryPath = directoryPath;
+    }
 }
