@@ -86,10 +86,10 @@ public class MainPage extends VBox {
         resErColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.16));
         TableColumn<Student, String> resOutputColumn = new TableColumn<>("Standard Output");
         resOutputColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getStdOutput()));
-        resOutputColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.16));
+        resOutputColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.18));
         TableColumn<Student, String> resDuraColumn = new TableColumn<>("Execution Result (ms)");
         resDuraColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getExecutionResult().getExecutionDuration()));
-        resDuraColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.16));
+        resDuraColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.18));
         studentCol.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.1));
         resultCol.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.1));
         resDirectoryColumn.prefWidthProperty().bind(resultTable.widthProperty().multiply(0.1));
