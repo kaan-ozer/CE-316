@@ -103,7 +103,7 @@ public class CreateProjectPage extends VBox {
     }
 
     private void loadConfigurationFiles() {
-        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "configs");
         File folder = configsDir.toFile();
 
         if (!folder.exists()) {
@@ -119,7 +119,7 @@ public class CreateProjectPage extends VBox {
     }
 
     private Configuration loadConfiguration(String configName) {
-        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        Path configsDir = Paths.get(System.getProperty("user.dir"),"configs");
         File configFile = configsDir.resolve(configName + ".json").toFile();
 
         try (FileReader reader = new FileReader(configFile)) {
@@ -171,7 +171,7 @@ public class CreateProjectPage extends VBox {
             return;
         }
 
-        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        Path configsDir = Paths.get(System.getProperty("user.dir"),"configs");
 
         if (!configsDir.toFile().exists()) {
             configsDir.toFile().mkdirs();
@@ -256,7 +256,7 @@ public class CreateProjectPage extends VBox {
     }
 
     private void saveProjectToJson(Project project) {
-        Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+        Path projectsDir = Paths.get(System.getProperty("user.dir"), "projects");
 
         if (!projectsDir.toFile().exists()) {
             projectsDir.toFile().mkdirs();

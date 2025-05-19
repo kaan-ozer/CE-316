@@ -165,7 +165,7 @@ public class MainPage extends VBox {
             exportButton.setDisable(false);
 
             try {
-                Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+                Path projectsDir = Paths.get(System.getProperty("user.dir"),"projects");
                 File projectFile = projectsDir.resolve(currentProject.getProjectName() + ".json").toFile();
 
                 Genson genson = new Genson();
@@ -211,7 +211,7 @@ public class MainPage extends VBox {
     }
 
     private void deleteSelectedProject(String projectName) {
-        Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+        Path projectsDir = Paths.get(System.getProperty("user.dir"), "projects");
         File projectFile = projectsDir.resolve(projectName + ".json").toFile();
 
         if (projectFile.exists() && projectFile.delete()) {
@@ -238,7 +238,7 @@ public class MainPage extends VBox {
                 setText(empty || item == null ? "-- Select a project --" : item);
             }
         });
-        Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+        Path projectsDir = Paths.get(System.getProperty("user.dir"), "projects");
         if (Files.exists(projectsDir)) {
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(projectsDir, "*.json")) {
                 for (Path p : stream) {
@@ -252,7 +252,7 @@ public class MainPage extends VBox {
 
     private void loadProject(String projectName) {
         try {
-            Path projectsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "projects");
+            Path projectsDir = Paths.get(System.getProperty("user.dir"), "projects");
             File projectFile = projectsDir.resolve(projectName + ".json").toFile();
             Genson genson = new Genson();
             try (FileReader reader = new FileReader(projectFile)) {
