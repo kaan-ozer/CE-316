@@ -18,7 +18,6 @@ public class AppMenuBar extends MenuBar {
     private MenuItem mOpenConfig = new MenuItem("Open Configuration");
 
     private MenuItem mUserGuide = new MenuItem("User Guide");
-    private MenuItem mAbout = new MenuItem("About");
 
     private Stage primaryStage;
 
@@ -33,10 +32,11 @@ public class AppMenuBar extends MenuBar {
         mNewConfig.setOnAction(e -> openCreateConfigurationPage(primaryStage));
         mOpenConfig.setOnAction(e -> openEditConfigurationPage(primaryStage));
         mNewProject.setOnAction(e -> openCreateProjectPage(primaryStage));
+        mQuit.setOnAction(e -> {System.exit(0);});
 
         projectMenu.getItems().addAll(mNewProject, new SeparatorMenuItem(), mQuit);
-        configMenu.getItems().addAll(mNewConfig, mOpenConfig, new SeparatorMenuItem());
-        helpMenu.getItems().addAll(mUserGuide, new SeparatorMenuItem(), mAbout);
+        configMenu.getItems().addAll(mNewConfig, new SeparatorMenuItem() ,mOpenConfig);
+        helpMenu.getItems().addAll(mUserGuide);
 
         this.getMenus().addAll(projectMenu, configMenu, helpMenu);
     }
@@ -65,7 +65,7 @@ public class AppMenuBar extends MenuBar {
         CreateProjectPage createProjectPage = new CreateProjectPage(primaryStage);
 
         Stage popupStage = new Stage();
-        popupStage.setTitle("Create New Configuration");
+        popupStage.setTitle("Create New Project");
         popupStage.initOwner(primaryStage);
         popupStage.setScene(new Scene(createProjectPage, 500, 500));
         popupStage.show();
