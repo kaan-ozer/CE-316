@@ -48,9 +48,10 @@ public class HelpGuide extends ScrollPane {
                 "2. Enter a name for your configuration\n" +
                 "3. Specify the programming language (e.g., Java, C++, Python)\n" +
                 "4. Set the file extensions for source and executable files\n" +
-                "5. Add any compiler/run parameters required\n" +
-                "6. If the compiler isn't in your system PATH, uncheck the checkbox and select the compiler executable\n" +
-                "7. Click 'Generate Configuration'\n\n" +
+                "5. Add any compiler/run parameters if required\n" +
+                "6. If you do not have specific file names for source and output files you can use {Soruces}, {Outputs} placeholders. Student IDs will be used as standard output file name\n"+
+                "7. If the compiler isn't in your system PATH, uncheck the checkbox and select the compiler executable\n" +
+                "8. Click 'Generate Configuration'\n\n" +
                 "To edit existing configurations, go to 'Configuration' > 'Open Configuration'"));
         
         // Projects Section
