@@ -29,7 +29,7 @@ public class AppMenuBar extends MenuBar {
         mNewProject.setAccelerator(KeyCombination.keyCombination("Ctrl+N"));
         mUserGuide.setAccelerator(KeyCombination.keyCombination("Ctrl+H"));
 
-
+        mUserGuide.setOnAction(e -> openHelpMenuPage());
         mNewConfig.setOnAction(e -> openCreateConfigurationPage(primaryStage));
         mOpenConfig.setOnAction(e -> openEditConfigurationPage(primaryStage));
         mNewProject.setOnAction(e -> openCreateProjectPage(primaryStage));
@@ -68,6 +68,16 @@ public class AppMenuBar extends MenuBar {
         popupStage.setTitle("Create New Configuration");
         popupStage.initOwner(primaryStage);
         popupStage.setScene(new Scene(createProjectPage, 500, 500));
+        popupStage.show();
+    }
+
+    private void openHelpMenuPage() {
+        HelpGuide helpMenuPage = new HelpGuide();
+
+        Stage popupStage = new Stage();
+        popupStage.setTitle("Help");
+        popupStage.initOwner(primaryStage);
+        popupStage.setScene(new Scene(helpMenuPage, 600, 500));
         popupStage.show();
     }
 }

@@ -6,14 +6,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 
 public class HelpGuide extends ScrollPane {
 
     public HelpGuide() {
+
         // Configure the scroll pane
         this.setFitToWidth(true);
         this.setPadding(new Insets(0));
