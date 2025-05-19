@@ -132,7 +132,7 @@ public class EditConfigurationPage extends VBox {
     }
 
     private void loadConfigurationFiles() {
-        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "configs");
         File folder = configsDir.toFile();
 
         if (!folder.exists()) {
@@ -148,7 +148,7 @@ public class EditConfigurationPage extends VBox {
     }
 
     private void loadConfiguration(String configName) {
-        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "configs");
         File configFile = configsDir.resolve(configName + ".json").toFile();
 
         try (FileReader reader = new FileReader(configFile)) {
@@ -226,7 +226,7 @@ public class EditConfigurationPage extends VBox {
             }
         }
 
-        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "configs");
 
         if (!configsDir.toFile().exists()) {
             configsDir.toFile().mkdirs();
@@ -323,7 +323,7 @@ public class EditConfigurationPage extends VBox {
 
         confirmation.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+                Path configsDir = Paths.get(System.getProperty("user.dir"), "configs");
                 File configFile = configsDir.resolve(selectedConfig + ".json").toFile();
 
                 if (configFile.exists()) {
@@ -355,7 +355,7 @@ public class EditConfigurationPage extends VBox {
             return;
         }
 
-        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "configs");
 
         if (!configsDir.toFile().exists()) {
             configsDir.toFile().mkdirs();
@@ -477,7 +477,7 @@ public class EditConfigurationPage extends VBox {
             return;
         }
 
-        Path configsDir = Paths.get(System.getProperty("user.dir"), "src", "main", "java", "ce316project", "configs");
+        Path configsDir = Paths.get(System.getProperty("user.dir"), "configs");
         File configFile = configsDir.resolve(selectedConfig + ".json").toFile();
 
         if (!configFile.exists()) {
